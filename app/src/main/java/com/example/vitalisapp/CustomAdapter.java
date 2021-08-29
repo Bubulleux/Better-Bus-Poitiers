@@ -6,30 +6,49 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public class CustomAdapter extends BaseAdapter {
-	private LayoutInflater inflater;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-	public CustomAdapter(Context conctex)
+public class CustomAdapter<T> extends BaseAdapter
+{
+	private final LayoutInflater inflater;
+	public List<T> list;
+	private final IUpdateAdapter<T> interfaceAdapter;
+
+
+	public CustomAdapter(Context context, List<T> list, IUpdateAdapter<T> interfaceAdapter)
 	{
-		inflater = LayoutInflater.from(conctex);
+		this.inflater = LayoutInflater.from(context);
+		this.list = list;
+		this.interfaceAdapter = interfaceAdapter;
 	}
+
+
+
 	@Override
 	public int getCount() {
-		return 0;
+		return list.size();
 	}
 
 	@Override
-	public Object getItem(int i) {
-		return null;
+	public T getItem(int i) {
+		return list.get(i);
 	}
 
 	@Override
-	public long getItemId(int i) {
+	public long getItemId(int i)
+	{
 		return 0;
 	}
 
 	@Override
 	public View getView(int i, View view, ViewGroup viewGroup) {
-		return inflater.inflate(R.layout.preset_item, null);
+		return interfaceAdapter.getView(i, view, viewGroup, inflater, list);
+	}
+
+	public interface IUpdateAdapter<T>
+	{
+		View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<T> list);
 	}
 }

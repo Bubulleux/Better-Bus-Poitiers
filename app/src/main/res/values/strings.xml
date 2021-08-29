@@ -1,4 +1,6 @@
 <resources>
 	<string name="app_name">VItalisApp</string>
 	<string name="new_btn">New</string>
+	<string name="other">other timeTable</string>
+	<string name="search_hint">Search</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.example.vitalisapp;
 
-class Station
+import java.io.Serializable;
+
+class Station implements Serializable
 {
 	String stop_id;
 	String id = "";

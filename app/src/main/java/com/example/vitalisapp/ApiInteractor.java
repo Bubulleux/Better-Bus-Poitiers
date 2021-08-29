@@ -4,11 +4,12 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Objects;
 
 import com.google.gson.Gson;
 
-public class ApiInteractor {
+public class ApiInteractor implements Serializable {
 	private OkHttpClient client = new OkHttpClient();
 	public String token = "";
 	Station[] stations;
@@ -30,7 +31,10 @@ public class ApiInteractor {
 				int tokenIndex = body.indexOf("token");
 				int end_token = body.indexOf("',", tokenIndex);
 				token = "Bearer " + body.substring(tokenIndex + 8, end_token);
-				callback.onResponse(token);
+				if (callback != null)
+				{
+					callback.onResponse(token);
+				}
 			}
 		});
 	}
@@ -208,7 +212,7 @@ abstract class CallBackHttp implements Callback
 		}
 		else
 		{
-			System.out.printf("Http Request not Successful: %s", response.request().url());
+			System.out.printf("Http Request not Successful: %s \n %s \n", response.request().url(), response.body());
 		}
 	}
 

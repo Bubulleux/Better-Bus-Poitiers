@@ -37,28 +37,6 @@
 			app:layout_constraintTop_toBottomOf="@+id/name_txt"
 			android:id="@+id/line_list"
 			android:rowCount="2"
-
-			>
-		<TextView
-				android:layout_width="30dp"
-				android:layout_height="30dp"
-				android:textSize="20dp"
-				android:text="1"
-				android:background="#F00"
-				android:gravity="center"/>
-		<TextView
-				android:layout_width="30dp"
-				android:layout_height="30dp"
-				android:textSize="20dp"
-				android:text="1"
-				android:background="#F00"
-				android:gravity="center"/>
-		<TextView
-				android:layout_width="30dp"
-				android:layout_height="30dp"
-				android:textSize="20dp"
-				android:text="1"
-				android:background="#F00"
-				android:gravity="center"/>
-	</GridLayout>
+			android:orientation="vertical">
+		</GridLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,26 @@
+Get Station Line: https://api.scoop.airweb.fr/gtfs/Line/getStationLines.json?
+	station={Station}&
+	networks=[1]
+return List of Line
+
+Get Line Info Id: https://api.scoop.airweb.fr/gtfs/Station/getBoardingIDs.json?
+	line={line}&
+	station={sation Name}&
+	networks=[1]
+return StationLineInfo
+
+Get Horrair: https://api.scoop.airweb.fr/gtfs/Horaire/getHoraire.json?
+	boarding_id={station Id}&
+	date={date}&direction=1&
+	line={line}&
+	stop_id={direction List String}&
+	networks=[1]
+return TimeTable
+
+Get Next Passage: https://api.scoop.airweb.fr/gtfs/SIRI/getSIRIWithErrors.json?
+	max={max Output}&
+	stopPoint={stationId}&
+	networks=[1]&
+	line={line optional}
+return NextPassages
+

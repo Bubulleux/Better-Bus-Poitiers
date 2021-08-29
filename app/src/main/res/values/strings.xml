@@ -1,3 +1,4 @@
 <resources>
 	<string name="app_name">VItalisApp</string>
+	<string name="new_btn">New</string>
 </resources>

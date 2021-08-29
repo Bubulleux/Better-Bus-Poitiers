@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+	<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Preset Title"
+			android:textSize="20dp"
+			android:gravity="center"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintLeft_toLeftOf="parent"
+			android:id="@+id/name_txt"/>
+
+	<TextView
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:text="Bus Station"
+			android:textSize="30dp"
+			app:layout_constraintTop_toBottomOf="@+id/name_txt"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			android:gravity="center_vertical"
+			android:paddingLeft="5dp"
+			android:id="@+id/station_text"
+			app:layout_constraintRight_toLeftOf="@id/line_list"/>
+
+	<GridLayout
+			android:layout_width="wrap_content"
+			android:layout_height="60dp"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/name_txt"
+			android:id="@+id/line_list"
+			android:rowCount="2"
+
+			>
+		<TextView
+				android:layout_width="30dp"
+				android:layout_height="30dp"
+				android:textSize="20dp"
+				android:text="1"
+				android:background="#F00"
+				android:gravity="center"/>
+		<TextView
+				android:layout_width="30dp"
+				android:layout_height="30dp"
+				android:textSize="20dp"
+				android:text="1"
+				android:background="#F00"
+				android:gravity="center"/>
+		<TextView
+				android:layout_width="30dp"
+				android:layout_height="30dp"
+				android:textSize="20dp"
+				android:text="1"
+				android:background="#F00"
+				android:gravity="center"/>
+	</GridLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

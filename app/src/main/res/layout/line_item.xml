@@ -4,8 +4,9 @@
 		android:layout_width="30dp"
 		android:layout_height="30dp">
 	<TextView
-			android:layout_width="28dp"
+			android:layout_width="wrap_content"
 			android:layout_height="28dp"
+			android:minWidth="28dp"
 			android:textSize="15dp"
 			android:text="N99"
 			android:id="@+id/line_id"

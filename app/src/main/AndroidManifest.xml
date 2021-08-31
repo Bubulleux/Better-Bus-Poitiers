@@ -11,6 +11,10 @@
 			android:roundIcon="@mipmap/ic_launcher_round"
 			android:supportsRtl="true"
 			android:theme="@style/Theme.VItalisApp">
+		<activity android:name=".LineSelectorActivity">
+		</activity>
+		<activity android:name=".PresetEditionActivity">
+		</activity>
 		<activity android:name=".NextPassageActivity">
 		</activity>
 		<activity android:name=".ActivityFindStation">

@@ -15,7 +15,7 @@ class Lines
 	Line[] lines;
 }
 
-class Line
+class Line implements Serializable
 {
 	String line_id;
 	String name;
@@ -23,7 +23,7 @@ class Line
 	Direction direction;
 }
 
-class Direction
+class Direction implements Serializable
 {
 	String[] aller;
 	String[] retour;
@@ -60,4 +60,5 @@ class Passage
 	boolean realtime;
 	String aimedDepartureTime;
 	String expectedDepartureTime;
+
 }

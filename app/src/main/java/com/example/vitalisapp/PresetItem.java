@@ -1,16 +1,22 @@
 package com.example.vitalisapp;
 
-public class PresetItem {
+import java.io.Serializable;
+
+public class PresetItem implements Serializable
+{
 	public String name;
 	public String stationName;
-	public String[] lineId;
+	public DirectionPreset[] directions;
 	public boolean isFavorite;
 
-	public PresetItem(String  name, String stationName, String lineId[], boolean isFavorite)
+	public PresetItem(String  name, String stationName, DirectionPreset directions[], boolean isFavorite)
 	{
 		this.name = name;
 		this.stationName = stationName;
-		this.lineId = lineId;
+		this.directions = directions;
 		this.isFavorite = isFavorite;
 	}
+
+
 }
+

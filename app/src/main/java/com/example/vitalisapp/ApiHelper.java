@@ -9,7 +9,8 @@ import java.util.Objects;
 
 import com.google.gson.Gson;
 
-public class ApiInteractor implements Serializable {
+public class ApiHelper implements Serializable
+{
 	private OkHttpClient client = new OkHttpClient();
 	public String token = "";
 	Station[] stations;
@@ -39,15 +40,26 @@ public class ApiInteractor implements Serializable {
 		});
 	}
 
+
 	public void GetAllStations(CallbackObject<Station[]> callback)
 	{
+		GetAllStations(callback, false);
+	}
+
+	public void GetAllStations(CallbackObject<Station[]> callback, boolean force)
+	{
+		if (stations != null && !force)
+		{
+			callback.onResponse(stations);
+			return;
+		}
+
 		HttpUrl url = HttpUrl.parse("https://api.scoop.airweb.fr/stops/");
 		Request request = new Request.Builder()
 				.url(url)
 				.header("Authorization", token)
 				.build();
 
-		System.out.printf("Header: %s \n", request.header("Authorization"));
 
 		client.newCall(request).enqueue(new CallBackHttp() {
 			@Override
@@ -63,9 +75,14 @@ public class ApiInteractor implements Serializable {
 
 	public void GetStationLine(Station station, CallbackObject<Line[]> callback)
 	{
+		GetStationLine(station.name, callback);
+	}
+
+	public void GetStationLine(String stationName, CallbackObject<Line[]> callback)
+	{
 		HttpUrl url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/Line/getStationLines.json?networks=[1]"))
 				.newBuilder()
-				.addQueryParameter("station", station.name)
+				.addQueryParameter("station", stationName)
 				.build();
 
 
@@ -75,7 +92,6 @@ public class ApiInteractor implements Serializable {
 			@Override
 			public void onResponseOk(Response response, String body)
 			{
-				System.out.println(body);
 				Lines lines = new Gson().fromJson(body, Lines.class);
 				callback.onResponse(lines.lines);
 			}
@@ -106,8 +122,8 @@ public class ApiInteractor implements Serializable {
 				for (int i = 0; i < info.boarding_ids.retour.length; i++)
 					GetStationByName(line.direction.retour[i]).id = info.boarding_ids.retour[i];
 
-
-				callback.onResponse(info);
+				if (callback != null)
+					callback.onResponse(info);
 			}
 		});
 	}
@@ -158,6 +174,34 @@ public class ApiInteractor implements Serializable {
 			}
 		});
 
+	}
+
+	public NextPassages SyncGetNextPassage(Station station, Line line)
+	{
+		if (station.id == "")
+		{
+			System.out.println("Error station id is undefined");
+		}
+		HttpUrl.Builder url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/SIRI/getSIRIWithErrors.json?networks=[1]"))
+				.newBuilder()
+				.addQueryParameter("max", "20")
+				.addQueryParameter("stopPoint", station.id);
+		if (line != null)
+		{
+			url.addQueryParameter("line", line.name);
+		}
+
+		Request request = GetRequest(url.build());
+
+		try
+		{
+			Response response = client.newCall(request).execute();
+			return new Gson().fromJson(response.body().string(), NextPassages.class);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public Station GetStationByName(String name)

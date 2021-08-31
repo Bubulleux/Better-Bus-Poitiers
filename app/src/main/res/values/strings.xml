@@ -3,4 +3,14 @@
 	<string name="new_btn">New</string>
 	<string name="other">other timeTable</string>
 	<string name="search_hint">Search</string>
+	<string name="refresh">Refresh</string>
+	<string name="name_preset">Name:</string>
+	<string name="station_preset">Station:</string>
+	<string name="change_btn">Change</string>
+	<string name="hint_preset_name">Preset Name</string>
+	<string name="line_grid">Line:</string>
+	<string name="favorite_txt">Favorite:</string>
+	<string name="save_txt">Save</string>
+	<string name="delete_btn">Delete</string>
+	<string name="finish_btn">Finish</string>
 </resources>

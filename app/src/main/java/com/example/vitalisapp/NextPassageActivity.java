@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -16,6 +19,7 @@ public class NextPassageActivity extends AppCompatActivity {
 	private TextView stationTextView;
 	private ListView nextPassageList;
 	private Button refreshBtn;
+	private Button seeAllBtn;
 
 	private CustomAdapter<Passage> listAdapter;
 
@@ -23,6 +27,7 @@ public class NextPassageActivity extends AppCompatActivity {
 
 	private ApiHelper apiHelper;
 	private Station station;
+	private PresetItem preset;
 	private Line[] lines;
 	private boolean load;
 
@@ -35,11 +40,47 @@ public class NextPassageActivity extends AppCompatActivity {
 		apiHelper = new ApiHelper();
 		apiHelper.token =(String) getIntent().getSerializableExtra("Token");
 		station = (Station) getIntent().getSerializableExtra("Station");
+		preset = null;
+
+		if (station == null)
+		{
+			preset = (PresetItem) getIntent().getSerializableExtra("TimetablePreset");
+			station = new Station();
+			station.name = preset.stationName;
+		}
 
 		//Get View
 		stationTextView = findViewById(R.id.station_name);
 		nextPassageList = findViewById(R.id.next_passage_list);
 		refreshBtn = findViewById(R.id.refresh_btn);
+
+		seeAllBtn = findViewById(R.id.see_all_btn);
+
+		if (preset == null)
+		{
+			ViewGroup.LayoutParams params = seeAllBtn.getLayoutParams();
+			params.height = 1;
+			seeAllBtn.setLayoutParams(params);
+		}
+		else
+		{
+			seeAllBtn.setOnClickListener((View view) ->
+			{
+				if (preset == null)
+					return;
+				preset = null;
+				view.setVisibility(View.INVISIBLE);
+
+				ConstraintLayout constrainLayout = findViewById(R.id.constraint_layout);
+				ConstraintSet constraintSet = new ConstraintSet();
+				constraintSet.clone(constrainLayout);
+				constraintSet.connect(R.id.next_passage_list, ConstraintSet.BOTTOM, R.id.refresh_btn, ConstraintSet.TOP);
+
+				constrainLayout.setConstraintSet(constraintSet);
+
+				Refresh();
+			});
+		}
 
 		//Assign Function
 		refreshBtn.setOnClickListener(new View.OnClickListener() {
@@ -91,18 +132,35 @@ public class NextPassageActivity extends AppCompatActivity {
 				for (Passage passage : object.realtime)
 				{
 					System.out.printf("Line: %s, Destination: %s, Time: %s\n", passage.line.line_id, passage.destinationName, passage.expectedDepartureTime);
-					passages.add(passage);
-				}
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run()
+					if (preset != null)
 					{
-						listAdapter.notifyDataSetChanged();
+						boolean breakAll = false;
+						for (DirectionPreset direction : preset.directions)
+						{
+							for (String terminus: direction.terminus)
+							{
+								if (passage.line.line_id.equals(direction.line_id) && passage.destinationName.equals(terminus))
+								{
+									passages.add(passage);
+									breakAll = true;
+									break;
+								}
+							}
+							if (breakAll)
+								break;
+						}
 					}
-				});
+					else
+					{
+						passages.add(passage);
+					}
+				}
+				runOnUiThread(() -> listAdapter.notifyDataSetChanged());
 			}
 		});
 	}
+
+
 
 	public void InitAdapter()
 	{

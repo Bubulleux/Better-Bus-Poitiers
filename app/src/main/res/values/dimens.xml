@@ -2,7 +2,7 @@
 <resources>
 	<dimen name="textSize">30sp</dimen>
 	<dimen name="top_margin">30dp</dimen>
-	<dimen name="btn_text_size">20dp</dimen>
+	<dimen name="btn_text_size">20sp</dimen>
 	<dimen name="line_square">46dp</dimen>
 	<dimen name="line_square_margin">2dp</dimen>
 	<dimen name="line_square_text_size">30dp</dimen>

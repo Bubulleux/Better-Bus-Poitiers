@@ -1,16 +1,32 @@
 <resources>
-	<string name="app_name">VItalisApp</string>
-	<string name="new_btn">New</string>
-	<string name="other">other timeTable</string>
-	<string name="search_hint">Search</string>
-	<string name="refresh">Refresh</string>
-	<string name="name_preset">Name:</string>
-	<string name="station_preset">Station:</string>
-	<string name="change_btn">Change</string>
-	<string name="hint_preset_name">Preset Name</string>
-	<string name="line_grid">Line:</string>
-	<string name="favorite_txt">Favorite:</string>
-	<string name="save_txt">Save</string>
-	<string name="delete_btn">Delete</string>
-	<string name="finish_btn">Finish</string>
+	<string name="app_name">Better Vitalis</string>
+	<string name="new_btn">Nouveaux Préréglage</string>
+	<string name="other">Autre Horraire</string>
+	<string name="search_hint">Rechercher</string>
+	<string name="refresh">Rafraichir</string>
+	<string name="name_preset">Nom:</string>
+	<string name="station_preset">Arret:</string>
+	<string name="change_btn">Changer</string>
+	<string name="hint_preset_name">Nom du préréglage</string>
+	<string name="line_grid">Ligne:</string>
+	<string name="favorite_txt">Favori:</string>
+	<string name="save_txt">Sauvgarder</string>
+	<string name="delete_btn">Supprimer</string>
+	<string name="finish_btn">Finir</string>
+	<string name="select_all">Tout Selectionner</string>
+	<string name="unselect_all">Tout Déselectionner</string>
+	<string name="see_all_line_btn">Voir toutes les lignes</string>
+
+
+	<string name="preset_saved">Préréglages Sauvgarder</string>
+	<string name="preset_loaded">Préréglages Charger</string>
+
+	<string name="error_name">Erreur: Tu dois donnée un nom a ton Préréglage.</string>
+	<string name="error_station">Erreur: Tu dois selectionée un arret de bus.</string>
+
+	<string name="delete_msg">Es-tu sure de vouloir supprimer ce préréglage ?</string>
+
+
+	<string name="yes">Oui</string>
+	<string name="no">Non</string>
 </resources>

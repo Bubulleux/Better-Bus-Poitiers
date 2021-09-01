@@ -1,5 +1,6 @@
 package com.example.vitalisapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Debug;
@@ -13,6 +14,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -140,10 +142,37 @@ public class PresetEditionActivity extends AppCompatActivity
 			public void afterTextChanged(Editable editable) { }
 		});
 
-		saveBtn.setOnClickListener((View view) -> Done(false));
-		deleteBtn.setOnClickListener((View view) -> Done(true));
+		saveBtn.setOnClickListener((View view) -> SaveBtn());
+		deleteBtn.setOnClickListener((View view) -> DeleteBtn());
 
 
+	}
+
+	public void DeleteBtn()
+	{
+		AlertDialog deleteAlert = new AlertDialog.Builder(this).create();
+		deleteAlert.setMessage(getString(R.string.delete_msg));
+
+		deleteAlert.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.yes),
+				(dialogInterface, i) -> Done(true));
+
+		deleteAlert.setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.no),
+				((dialogInterface, i) -> {}));
+
+		deleteAlert.show();
+
+	}
+
+	public void SaveBtn()
+	{
+		if (preset.name == null || preset.name.equals(""))
+			Toast.makeText(this, getString(R.string.error_name), Toast.LENGTH_LONG).show();
+
+		else if (preset.stationName == null || preset.stationName.equals(""))
+			Toast.makeText(this, getString(R.string.error_station), Toast.LENGTH_LONG).show();
+
+		else
+			Done(false);
 	}
 
 	public void Done(boolean delete)

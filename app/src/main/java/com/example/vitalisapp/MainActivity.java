@@ -1,6 +1,8 @@
 package com.example.vitalisapp;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +13,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -20,6 +24,7 @@ public class MainActivity extends AppCompatActivity
 
 	private final ApiHelper apiHelper = new ApiHelper();
 	private final List<PresetItem> presets = new ArrayList<>();
+	private final String PRESET_FILE_NAME = "timetable_presets.json";
 	public LayoutInflater inflater;
 
 	private CustomAdapter<PresetItem> presetListAdapter;
@@ -34,12 +39,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-		//Inisialize Exemple Preset
-		presets.add(new PresetItem("Ecole", "Voie Malraux", new DirectionPreset[0], false ));
-		presets.add(new PresetItem("Ecole2", "Notre Dame",  new DirectionPreset[0], true ));
-		presets.add(new PresetItem("Sus amogus", "Voie Malraux",  new DirectionPreset[0], false ));
-
+		LoadPresets();
 
 		inflater = LayoutInflater.from(this);
 		ListView presetListView = (ListView)findViewById(R.id.preset_list);
@@ -73,12 +73,14 @@ public class MainActivity extends AppCompatActivity
 						int index = bundle.getInt("Index");
 
 
+						System.out.printf("Index %d, preset %b\n", index, preset == null);
+
 						if (preset == null)
 							presets.remove(index);
 						else
 							presets.set(index, preset);
 
-
+						SavePreset();
 						runOnUiThread(() -> presetListAdapter.notifyDataSetChanged());
 					}
 				});
@@ -108,21 +110,50 @@ public class MainActivity extends AppCompatActivity
 				view = inflater.inflate(R.layout.preset_item, null);
 				PresetItem item = list.get(i);
 
-				view.setOnClickListener((View viewBtn) -> UpdatePreset(i));
+				view.setOnLongClickListener((View viewBtn) ->
+				{
+					UpdatePreset(i);
+					return true;
+				});
+
+				view.setOnClickListener((View viewBtn) -> GoToTimetable(item));
 
 				((TextView)view.findViewById(R.id.name_txt)).setText(item.name);
+
+				if (item.isFavorite)
+					((TextView)view.findViewById(R.id.name_txt)).setTypeface(null, Typeface.BOLD);
+
 				((TextView)view.findViewById(R.id.station_text)).setText(item.stationName);
-				System.out.printf("%s Has been Updated\n", item.name);
 
 				GridLayout lineGrid = ((GridLayout)view.findViewById(R.id.line_list));
-//				for (String line : item.lineId)
-//				{
-//					LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
-//					TextView textView = ((TextView)layout.findViewById(R.id.line_id));
-//
-//					textView.setText(line);
-//					lineGrid.addView(layout);
-//				}
+
+				//Add line
+				List<String> lineAlreadyAdded = new ArrayList<>();
+
+				for (DirectionPreset direction : item.directions)
+				{
+					boolean contain = false;
+					for (String line: lineAlreadyAdded)
+					{
+						if (line.equals(direction.line_id))
+						{
+							contain = true;
+							break;
+						}
+					}
+
+					if (contain)
+						continue;
+
+					LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
+					TextView textView = layout.findViewById(R.id.line_id);
+
+					textView.setText(direction.line_id);
+					textView.setBackgroundColor(Color.parseColor(direction.line_color));
+
+					lineAlreadyAdded.add(direction.line_id);
+					lineGrid.addView(layout);
+				}
 
 				return view;
 			}
@@ -134,6 +165,26 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+	private void SavePreset()
+	{
+		String presetJson = new Gson().toJson(presets.toArray());
+		FileHelper.Save(PRESET_FILE_NAME, presetJson, this);
+		Toast.makeText(this, getString(R.string.preset_saved), Toast.LENGTH_SHORT).show();
+	}
+
+	private void LoadPresets()
+	{
+
+		String presetJson = FileHelper.Load(PRESET_FILE_NAME, this);
+		if (presetJson == null)
+			return;
+
+		presets.clear();
+		presets.addAll(Arrays.asList(new Gson().fromJson(presetJson, PresetItem[].class)));
+
+		Toast.makeText(this, getString(R.string.preset_loaded), Toast.LENGTH_SHORT).show();
+	}
+
 	public void otherTimetable()
 	{
 		Intent intent = new Intent(this, ActivityFindStation.class);
@@ -144,6 +195,15 @@ public class MainActivity extends AppCompatActivity
 			intent.putExtra("Stations", object);
 			anctivityGetOtherStation.launch(intent);
 		});
+	}
+
+	public void GoToTimetable(PresetItem timetablePreset)
+	{
+		Intent intent = new Intent(this, NextPassageActivity.class);
+		intent.putExtra("Token", apiHelper.token);
+		intent.putExtra("TimetablePreset", timetablePreset);
+		startActivity(intent);
+
 	}
 
 	private void GetStationNextPassage(Station station)

@@ -19,6 +19,8 @@ public class LineSelectorActivity extends AppCompatActivity
 {
 	ListView listView;
 	Button finishBtn;
+	Button selectAllBtn;
+	Button unselectAllBtn;
 
 	Line[] lines;
 	DirectionPreset[] directionsPreset;
@@ -36,8 +38,15 @@ public class LineSelectorActivity extends AppCompatActivity
 
 		//Get View
 		listView = (ListView) findViewById(R.id.line_selection_view);
+
 		finishBtn = (Button) findViewById(R.id.finish_btn);
 		finishBtn.setOnClickListener((View view) -> Done());
+
+		selectAllBtn = findViewById(R.id.select_all_btn);
+		selectAllBtn.setOnClickListener((View view) -> SelectAll(true));
+
+		unselectAllBtn = findViewById(R.id.unselect_all_btn);
+		unselectAllBtn.setOnClickListener((View view) -> SelectAll(false));
 
 		//Get Extra
 		lines = (Line[]) getIntent().getExtras().get("Lines");
@@ -70,9 +79,6 @@ public class LineSelectorActivity extends AppCompatActivity
 				((TextView)layout.findViewById(R.id.direction_txt)).setText(item.direction);
 
 				CheckBox checkBox = (CheckBox) layout.findViewById(R.id.line_selected);
-
-
-
 
 				checkBox.setOnCheckedChangeListener((compoundButton, b) ->
 				{
@@ -114,6 +120,26 @@ public class LineSelectorActivity extends AppCompatActivity
 
 		listView.setAdapter(listViewAdapter);
 
+	}
+
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		finish();
+	}
+
+	private void SelectAll(boolean select)
+	{
+		for (int i = 0; i < directionsSelected.length; i++)
+		{
+			for (int j = 0; j < directionsSelected[i].length; j++)
+			{
+				directionsSelected[i][j] = select;
+			}
+		}
+
+		listViewAdapter.notifyDataSetChanged();
 	}
 
 	private void Done()

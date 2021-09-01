@@ -11,17 +11,26 @@
 			android:roundIcon="@mipmap/ic_launcher_round"
 			android:supportsRtl="true"
 			android:theme="@style/Theme.VItalisApp">
-		<activity android:name=".LineSelectorActivity">
+		<activity
+				android:name=".LineSelectorActivity"
+				android:screenOrientation="fullSensor">
 		</activity>
-		<activity android:name=".PresetEditionActivity">
+		<activity
+				android:name=".PresetEditionActivity"
+				android:screenOrientation="fullSensor">
 		</activity>
-		<activity android:name=".NextPassageActivity">
+		<activity
+				android:name=".NextPassageActivity"
+				android:screenOrientation="fullSensor">
 		</activity>
-		<activity android:name=".ActivityFindStation">
+		<activity
+				android:name=".ActivityFindStation"
+				android:screenOrientation="fullSensor">
 		</activity>
 		<activity
 				android:name=".MainActivity"
-				android:exported="true">
+				android:exported="true"
+				android:screenOrientation="fullSensor">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 

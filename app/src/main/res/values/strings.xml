@@ -33,4 +33,6 @@
 
 	<string name="yes">Oui</string>
 	<string name="no">Non</string>
+	<string name="appwidget_text">EXAMPLE</string>
+	<string name="add_widget">Add widget</string>
 </resources>

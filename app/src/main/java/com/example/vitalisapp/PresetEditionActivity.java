@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class PresetEditionActivity extends AppCompatActivity
 	private GridView lineListView;
 	private Button changeLineListBtn;
 	private CheckBox favoriteCheckBox;
+	private EditText newPosInput;
 
 	private Button saveBtn;
 	private Button deleteBtn;
@@ -40,6 +42,7 @@ public class PresetEditionActivity extends AppCompatActivity
 	private Station[] stations;
 	private ApiHelper apiHelper;
 	private int index;
+	private int presetsCount;
 	private Line[] stationLine;
 
 	//Activity Result
@@ -66,12 +69,12 @@ public class PresetEditionActivity extends AppCompatActivity
 
 		favoriteCheckBox = findViewById(R.id.favorite_check_box);
 
+		newPosInput = findViewById(R.id.text_order_index);
+
 		saveBtn = findViewById(R.id.save_btn);
 		deleteBtn = findViewById(R.id.delete_btn);
 
 
-		InitActivityLauncher();
-		InitBtn();
 
 
 		favoriteCheckBox.setOnCheckedChangeListener((compoundButton, b) -> preset.isFavorite = b);
@@ -81,10 +84,15 @@ public class PresetEditionActivity extends AppCompatActivity
 		preset = (PresetItem) intent.getSerializableExtra("Preset");
 		stations = (Station[]) intent.getSerializableExtra("Stations");
 		index = (Integer) intent.getSerializableExtra("Index");
+		presetsCount = (Integer) intent.getSerializableExtra("PresetsCount");
 		apiHelper = new ApiHelper();
 		apiHelper.token = (String) intent.getSerializableExtra("Token");
 		apiHelper.stations = stations;
 
+
+
+		InitActivityLauncher();
+		InitBtn();
 		//Init Grid Line Adapter
 		gridViewLineAdapter = new CustomAdapter<>(this, lineInGridView, new CustomAdapter.IUpdateAdapter<Line>() {
 			@Override
@@ -142,6 +150,41 @@ public class PresetEditionActivity extends AppCompatActivity
 			public void afterTextChanged(Editable editable) { }
 		});
 
+		newPosInput.setText(Integer.toString(index + 1));
+		newPosInput.setOnFocusChangeListener((view, b) ->
+		{
+			if (!b)
+			{
+				try
+				{
+
+					int indexInput = Integer.parseInt(newPosInput.getText().toString());
+					if (indexInput < 1)
+						indexInput = 1;
+					if (indexInput > presetsCount)
+						indexInput = presetsCount;
+
+					newPosInput.setText(Integer.toString(indexInput));
+				}
+				catch (Exception e)
+				{
+					newPosInput.setText(Integer.toString(index));
+				}
+			}
+		});
+		newPosInput.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+			@Override
+			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+			@Override
+			public void afterTextChanged(Editable editable)
+			{
+			}
+		});
+
 		saveBtn.setOnClickListener((View view) -> SaveBtn());
 		deleteBtn.setOnClickListener((View view) -> DeleteBtn());
 
@@ -180,6 +223,7 @@ public class PresetEditionActivity extends AppCompatActivity
 		Intent intent = new Intent();
 		intent.putExtra("Preset", delete ? null : preset);
 		intent.putExtra("Index", index);
+		intent.putExtra("NewPos", Integer.parseInt(newPosInput.getText().toString()) - 1);
 		setResult(RESULT_OK, intent);
 		finish();
 	}
@@ -230,6 +274,8 @@ public class PresetEditionActivity extends AppCompatActivity
 		favoriteCheckBox.setChecked(preset.isFavorite);
 		RefreshGridViewLine();
 	}
+
+
 
 	public void RefreshLine(String stationName)
 	{

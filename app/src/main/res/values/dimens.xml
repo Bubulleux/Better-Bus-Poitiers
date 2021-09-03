@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<dimen name="textSize">30sp</dimen>
-	<dimen name="top_margin">30dp</dimen>
+	<dimen name="top_margin">20dp</dimen>
 	<dimen name="btn_text_size">20sp</dimen>
 	<dimen name="line_square">46dp</dimen>
 	<dimen name="line_square_margin">2dp</dimen>

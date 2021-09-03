@@ -71,6 +71,8 @@ public class MainActivity extends AppCompatActivity
 
 						PresetItem preset = (PresetItem) bundle.get("Preset");
 						int index = bundle.getInt("Index");
+						int newPos = bundle.getInt("NewPos");
+
 
 
 						System.out.printf("Index %d, preset %b\n", index, preset == null);
@@ -79,6 +81,11 @@ public class MainActivity extends AppCompatActivity
 							presets.remove(index);
 						else
 							presets.set(index, preset);
+
+						//Move
+						PresetItem savePreset = presets.get(index);
+						presets.remove(index);
+						presets.add(newPos, savePreset);
 
 						SavePreset();
 						runOnUiThread(() -> presetListAdapter.notifyDataSetChanged());
@@ -220,6 +227,7 @@ public class MainActivity extends AppCompatActivity
 		Intent intent = new Intent(this, PresetEditionActivity.class);
 		intent.putExtra("Index", i);
 		intent.putExtra("Preset", presets.get(i));
+		intent.putExtra("PresetsCount", presets.size());
 		intent.putExtra("Token", apiHelper.token);
 		apiHelper.GetAllStations(object ->
 		{

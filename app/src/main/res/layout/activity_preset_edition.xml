@@ -20,7 +20,11 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:hint="@string/hint_preset_name"
-			android:textSize="20dp"
+			android:textSize="20sp"
+			android:inputType="text"
+			android:maxLines="1"
+
+
 			android:layout_marginLeft="10dp"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintRight_toRightOf="parent"
@@ -105,6 +109,34 @@
 			android:id="@+id/favorite_check_box"
 			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintTop_toTopOf="@id/favorite_text_view"/>
+
+<!--List order-->
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/text_order"
+			android:textSize="@dimen/textSize"
+			android:text="@string/positon_list"
+
+			android:layout_marginTop="@dimen/top_margin"
+			app:layout_constraintTop_toBottomOf="@id/favorite_text_view"
+			app:layout_constraintLeft_toLeftOf="parent"/>
+
+	<EditText
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:id="@+id/text_order_index"
+			android:textSize="20sp"
+			android:inputType="number"
+			android:maxLines="1"
+			android:text="000"
+
+			android:layout_marginTop="@dimen/top_margin"
+			app:layout_constraintTop_toBottomOf="@id/favorite_text_view"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintLeft_toRightOf="@id/text_order"/>
+
+
 
 <!--Button-->
 	<Button

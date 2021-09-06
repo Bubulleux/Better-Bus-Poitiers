@@ -1,8 +1,14 @@
 package com.example.vitalisapp;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +37,8 @@ public class MainActivity extends AppCompatActivity
 
 	ActivityResultLauncher<Intent> anctivityGetOtherStation;
 	ActivityResultLauncher<Intent> activityEditPreset;
+
+	public static final String PREF_NAME = "com.example.BetterVitalis_Pref";
 
 
 
@@ -83,12 +91,17 @@ public class MainActivity extends AppCompatActivity
 							presets.set(index, preset);
 
 						//Move
-						PresetItem savePreset = presets.get(index);
-						presets.remove(index);
-						presets.add(newPos, savePreset);
+						if (preset != null)
+						{
+							PresetItem savePreset = presets.get(index);
+							presets.remove(index);
+							presets.add(newPos, savePreset);
+						}
+						
 
 						SavePreset();
 						runOnUiThread(() -> presetListAdapter.notifyDataSetChanged());
+						UpdateWidgets();
 					}
 				});
 
@@ -107,7 +120,6 @@ public class MainActivity extends AppCompatActivity
 			presets.add(preset);
 			UpdatePreset(presets.size() - 1);
 		});
-
 
 		//Initialize Preset List
 		presetListAdapter = new CustomAdapter<PresetItem>(this, presets, new CustomAdapter.IUpdateAdapter<PresetItem>() {
@@ -171,18 +183,34 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+	
+	private void UpdateWidgets()
+	{
+		AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
+		int[] ids = widgetManager.getAppWidgetIds(new ComponentName(this, FavoriteWidget.class));
+		if (ids.length > 0)
+		{
+			new FavoriteWidget().onUpdate(this, widgetManager, ids);
+		}
+	}
 
 	private void SavePreset()
 	{
 		String presetJson = new Gson().toJson(presets.toArray());
-		FileHelper.Save(PRESET_FILE_NAME, presetJson, this);
+
+		SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString("presets", presetJson);
+		editor.apply();
+
 		Toast.makeText(this, getString(R.string.preset_saved), Toast.LENGTH_SHORT).show();
 	}
 
 	private void LoadPresets()
 	{
+		SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+		String presetJson = prefs.getString("presets", null);
 
-		String presetJson = FileHelper.Load(PRESET_FILE_NAME, this);
 		if (presetJson == null)
 			return;
 

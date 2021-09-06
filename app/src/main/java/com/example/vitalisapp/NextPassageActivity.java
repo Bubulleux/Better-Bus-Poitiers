@@ -39,6 +39,10 @@ public class NextPassageActivity extends AppCompatActivity {
 		//Get Extra
 		apiHelper = new ApiHelper();
 		apiHelper.token =(String) getIntent().getSerializableExtra("Token");
+		
+		if (apiHelper.token == null)
+			apiHelper.GetToken((String token) -> { });
+		
 		station = (Station) getIntent().getSerializableExtra("Station");
 		preset = null;
 

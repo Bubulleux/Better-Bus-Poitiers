@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import java.util.List;
+import java.util.Random;
 import java.util.zip.Inflater;
 
 
@@ -22,38 +24,6 @@ public class FavoriteWidget extends AppWidgetProvider
 	
 	static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId)
 	{
-
-//		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favorite_widget);
-//		//Load Presets
-//		SharedPreferences prefs = context.getSharedPreferences(MainActivity.PREF_NAME, Context.MODE_PRIVATE);
-//		String presetsJson = prefs.getString("presets", null);
-//
-//		PresetItem[] presets;
-//		if (presetsJson == null)
-//			presets = new PresetItem[0];
-//		else
-//			presets = new Gson().fromJson(presetsJson, PresetItem[].class);
-//
-//
-//		int presetFavoriteCount = 0;
-//		LayoutInflater inflater = LayoutInflater.from(context);
-//		for (PresetItem preset : presets)
-//		{
-//			if (preset.isFavorite)
-//			{
-//				presetFavoriteCount += 1;
-//				RemoteViews layout = new RemoteViews(context.getPackageName(), R.layout.preset_favorite_item);
-//				layout.setTextViewText(R.id.preset_name, preset.name);
-//
-//				Intent intent = new Intent(context, NextPassageActivity.class);
-//				intent.putExtra("TimetablePreset", preset);
-//
-//				layout.setOnClickFillInIntent(R.id.preset_name, intent);
-//
-//				views.addView(R.id.root_layout, layout);
-//			}
-//		}
-//		System.out.printf("Widget Updated Preset Find: %d\n", presetFavoriteCount);
 		
 		//Create Intent
 		Intent serviceIntent = new Intent(context, FavoritePresetService.class);
@@ -62,6 +32,7 @@ public class FavoriteWidget extends AppWidgetProvider
 		
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favorite_widget);
 		views.setRemoteAdapter(R.id.list_view, serviceIntent);
+		views.setEmptyView(R.id.list_view, R.id.example_widget_empty_view);
 		
 		
 		

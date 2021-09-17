@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity
 		LoadPresets();
 
 		inflater = LayoutInflater.from(this);
-		ListView presetListView = (ListView)findViewById(R.id.preset_list);
+		ListView presetListView = findViewById(R.id.preset_list);
 
 		//Get Api token
 		apiHelper.GetToken(null);
@@ -202,7 +202,10 @@ public class MainActivity extends AppCompatActivity
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString("presets", presetJson);
 		editor.apply();
-
+		
+		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+		appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(new ComponentName(this, FavoriteWidget.class)), R.id.list_view);
+		
 		Toast.makeText(this, getString(R.string.preset_saved), Toast.LENGTH_SHORT).show();
 	}
 

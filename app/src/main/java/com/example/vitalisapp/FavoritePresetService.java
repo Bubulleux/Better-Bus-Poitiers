@@ -10,6 +10,7 @@ import android.widget.RemoteViewsService;
 import android.widget.Toast;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class FavoritePresetService extends RemoteViewsService
 	class FavoritePresetWidgetFactory implements RemoteViewsFactory {
 		private Context context;
 		private int appWidgetId;
-		private List<PresetItem> list;
+		private List<PresetItem> list = new ArrayList<>();
 		
 		FavoritePresetWidgetFactory(Context context, Intent intent) {
 			this.context = context;
@@ -34,7 +35,11 @@ public class FavoritePresetService extends RemoteViewsService
 		
 		@Override
 		public void onCreate() {
-			Toast.makeText(getApplicationContext(), "Favorite Preset Service Intencied", Toast.LENGTH_LONG);
+		
+		}
+		@Override
+		public void onDataSetChanged()
+		{
 			SharedPreferences prefs = getApplicationContext().getSharedPreferences(MainActivity.PREF_NAME, Context.MODE_PRIVATE);
 			String presetsJson = prefs.getString("presets", null);
 			
@@ -44,11 +49,13 @@ public class FavoritePresetService extends RemoteViewsService
 			else
 				presets = new Gson().fromJson(presetsJson, PresetItem[].class);
 			
-			list = Arrays.asList(presets);
 			
-		}
-		@Override
-		public void onDataSetChanged() {
+			list.clear();
+			for (PresetItem presetItem : presets)
+			{
+				if (presetItem.isFavorite)
+					list.add(presetItem);
+			}
 		}
 		@Override
 		public void onDestroy() {
@@ -58,10 +65,16 @@ public class FavoritePresetService extends RemoteViewsService
 		public int getCount() {
 			return list.size();
 		}
+		
 		@Override
 		public RemoteViews getViewAt(int position) {
+			
 			RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.preset_favorite_item);
 			views.setTextViewText(R.id.preset_name, list.get(position).name);
+			
+			Intent fillIntent = new Intent();
+			fillIntent.putExtra("TimetablePreset", (PresetItem) list.get(position));
+			views.setOnClickFillInIntent(R.id.preset_name, fillIntent);
 			return views;
 		}
 		@Override

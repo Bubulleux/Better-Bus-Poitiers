@@ -18,6 +18,8 @@ public class NextPassageActivity extends AppCompatActivity {
 
 	private TextView stationTextView;
 	private ListView nextPassageList;
+	private TextView emptyListTxt;
+	private ProgressBar progressBar;
 	private Button refreshBtn;
 	private Button seeAllBtn;
 
@@ -35,13 +37,15 @@ public class NextPassageActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
+		Toast.makeText(this, "Next Passage Loaded", Toast.LENGTH_SHORT).show();
+		
+		
 		setContentView(R.layout.activity_next_passage);
 		//Get Extra
 		apiHelper = new ApiHelper();
 		apiHelper.token =(String) getIntent().getSerializableExtra("Token");
 		
-		if (apiHelper.token == null)
-			apiHelper.GetToken((String token) -> { });
+		
 		
 		station = (Station) getIntent().getSerializableExtra("Station");
 		preset = null;
@@ -57,9 +61,16 @@ public class NextPassageActivity extends AppCompatActivity {
 		stationTextView = findViewById(R.id.station_name);
 		nextPassageList = findViewById(R.id.next_passage_list);
 		refreshBtn = findViewById(R.id.refresh_btn);
+		emptyListTxt = findViewById(R.id.next_passage_list_empty_txt);
+		progressBar = findViewById(R.id.progressBar2);
+		
+		nextPassageList.setEmptyView(emptyListTxt);
 
 		seeAllBtn = findViewById(R.id.see_all_btn);
-
+		
+		setLoading(false);
+		
+		
 		if (preset == null)
 		{
 			ViewGroup.LayoutParams params = seeAllBtn.getLayoutParams();
@@ -100,25 +111,47 @@ public class NextPassageActivity extends AppCompatActivity {
 		InitClient();
 
 	}
-
+	
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+		finish();
+	}
+	
+	private void setLoading(Boolean value)
+	{
+		progressBar.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
+		runOnUiThread(() -> emptyListTxt.setVisibility(value ? View.INVISIBLE : View.VISIBLE));
+	}
+	
+	
 	private void InitClient()
 	{
-		apiHelper.GetStationLine(station, new ApiHelper.CallbackObject<Line[]>() {
-			@Override
-			public void onResponse(Line[] object)
+		ApiHelper.CallbackToken callbackToken = (String token) ->
+		{
+			apiHelper.GetStationLine(station, object ->
 			{
 				lines = object;
-
-				apiHelper.GetStationLineId(station, lines[0], new ApiHelper.CallbackObject<StationLineInfo>() {
-					@Override
-					public void onResponse(StationLineInfo object)
-					{
-						load = true;
-						Refresh();
-					}
+				
+				apiHelper.GetStationLineId(station, lines[0], object1 ->
+				{
+					load = true;
+					Refresh();
 				});
-			}
-		});
+			});
+		};
+		
+		setLoading(true);
+		
+		if (apiHelper.token == null)
+		{
+			apiHelper.GetToken(callbackToken);
+		}
+		else
+			callbackToken.onResponse(apiHelper.token);
+		
+		
 	}
 
 	public void Refresh()
@@ -127,40 +160,40 @@ public class NextPassageActivity extends AppCompatActivity {
 		{
 			return;
 		}
-		apiHelper.GetNextPassage(station, null, new ApiHelper.CallbackObject<NextPassages>() {
-			@Override
-			public void onResponse(NextPassages object)
-			{
-				passages.clear();
+		setLoading(true);
+		apiHelper.GetNextPassage(station, null, object ->
+		{
+			passages.clear();
 
-				for (Passage passage : object.realtime)
+			for (Passage passage : object.realtime)
+			{
+				System.out.printf("Line: %s, Destination: %s, Time: %s\n", passage.line.line_id, passage.destinationName, passage.expectedDepartureTime);
+				if (preset != null)
 				{
-					System.out.printf("Line: %s, Destination: %s, Time: %s\n", passage.line.line_id, passage.destinationName, passage.expectedDepartureTime);
-					if (preset != null)
+					boolean breakAll = false;
+					for (DirectionPreset direction : preset.directions)
 					{
-						boolean breakAll = false;
-						for (DirectionPreset direction : preset.directions)
+						for (String terminus: direction.terminus)
 						{
-							for (String terminus: direction.terminus)
+							if (passage.line.line_id.equals(direction.line_id) && passage.destinationName.equals(terminus))
 							{
-								if (passage.line.line_id.equals(direction.line_id) && passage.destinationName.equals(terminus))
-								{
-									passages.add(passage);
-									breakAll = true;
-									break;
-								}
-							}
-							if (breakAll)
+								passages.add(passage);
+								breakAll = true;
 								break;
+							}
 						}
-					}
-					else
-					{
-						passages.add(passage);
+						if (breakAll)
+							break;
 					}
 				}
-				runOnUiThread(() -> listAdapter.notifyDataSetChanged());
+				else
+				{
+					passages.add(passage);
+				}
 			}
+			
+			setLoading(false);
+			runOnUiThread(() -> listAdapter.notifyDataSetChanged());
 		});
 	}
 

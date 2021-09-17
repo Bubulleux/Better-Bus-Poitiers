@@ -16,24 +16,29 @@
 	<string name="select_all">Tout Sélectionner</string>
 	<string name="unselect_all">Tout Désélectionner</string>
 	<string name="see_all_line_btn">Voir toutes les lignes</string>
-
+	
 	<string name="positon_list">Position dans la list: </string>
 	<string name="up">Monter</string>
 	<string name="down">Décendre</string>
-
-
+	
+	
 	<string name="preset_saved">Préréglages Sauvgardés</string>
 	<string name="preset_loaded">Préréglages Chargés</string>
-
+	
 	<string name="error_name">Erreur: Tu dois donner un nom à ton Préréglage.</string>
 	<string name="error_station">Erreur: Tu dois sélectioner un arrêt de bus.</string>
-
+	
 	<string name="delete_msg">Es-tu sûr de vouloir supprimer ce préréglage?</string>
-
-
+	
+	
 	<string name="yes">Oui</string>
 	<string name="no">Non</string>
 	<string name="appwidget_text">EXAMPLE</string>
 	<string name="add_widget">Add widget</string>
 	<string name="favorite_list_empty">Ajout des préréglage dans tes favories pour les voir apparètre ici dans</string>
+	<string name="no_next_passage">Aucun prochain Passage n\'est prévue</string>
+	<string name="see_fix_timetable">Voir les horraire fix</string>
+	<string name="see_next_passage">Voire les prochain passage</string>
+	<string name="no_passage">Aucun passage n\'est prévue se joure la</string>
+	<string name="date">Date</string>
 </resources>

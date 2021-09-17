@@ -5,19 +5,17 @@
 		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:id="@+id/constraint_layout"
-		tools:context=".NextPassageActivity">
+		tools:context=".ActivityFixTimeTable">
 	
 	<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/station_name"
 			android:text="Station Name"
-			android:textSize="40dp"
+			android:textSize="40sp"
 			android:gravity="center"
-			app:layout_constraintTop_toTopOf="parent"/>
-	
-	
+			app:layout_constraintTop_toTopOf="parent"
+			/>
 	
 	
 	<ListView
@@ -27,12 +25,13 @@
 			tools:listitem="@layout/next_passage_item"
 			
 			app:layout_constraintTop_toBottomOf="@+id/station_name"
-			app:layout_constraintBottom_toTopOf="@id/see_all_btn"/>
+			app:layout_constraintBottom_toTopOf="@+id/direction_txt"/>
+	
 	<TextView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:id="@+id/next_passage_list_empty_txt"
-			android:text="@string/no_next_passage"
+			android:text="@string/no_passage"
 			android:textSize="@dimen/textSize"
 			android:gravity="center"
 			app:layout_constraintTop_toTopOf="@id/next_passage_list"
@@ -41,35 +40,48 @@
 			app:layout_constraintRight_toRightOf="@id/next_passage_list"
 			/>
 	
-	<Button
+	
+	<TextView
+			android:text="Direction"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/refresh_btn"
-			android:text="@string/refresh"
-			android:textSize="@dimen/btn_text_size"
+			android:id="@+id/direction_txt"
+			android:textSize="@dimen/textSize"
 			android:layout_margin="5dp"
-				app:layout_constraintBottom_toBottomOf="parent"/>
+			app:layout_constraintBottom_toTopOf="@id/change_direction_btn"
+			/>
+	
+	<Button
+			android:text="@string/change_btn"
+			android:textSize="@dimen/btn_text_size"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:layout_constraintBottom_toTopOf="@id/date_input"
+			android:layout_margin="5dp"
+			android:id="@+id/change_direction_btn"/>
+	
+	<EditText
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:inputType="date"
+			android:ems="10"
+			android:id="@+id/date_input"
+			android:hint="@string/date"
+			android:layout_margin="5dp"
+			app:layout_constraintBottom_toTopOf="@+id/see_next_passage"/>
 	
 	<Button
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/see_all_btn"
-			android:text="@string/see_all_line_btn"
-			android:layout_margin="5dp"
-			android:textSize="@dimen/btn_text_size"
-
-			app:layout_constraintBottom_toTopOf="@id/see_const_timetable"/>
-	
-	<Button
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/see_const_timetable"
-			android:text="@string/see_fix_timetable"
+			android:id="@+id/see_next_passage"
+			android:text="@string/see_next_passage"
 			android:layout_margin="5dp"
 			android:textSize="@dimen/btn_text_size"
 			
-			app:layout_constraintBottom_toTopOf="@id/refresh_btn"/>
-		
+			app:layout_constraintBottom_toBottomOf="parent"/>
+	
+	
+	
 	<ProgressBar
 			style="?android:attr/progressBarStyle"
 			android:layout_width="wrap_content"
@@ -81,6 +93,5 @@
 			app:layout_constraintBottom_toBottomOf="@id/next_passage_list"
 			app:layout_constraintLeft_toLeftOf="@id/next_passage_list"
 			app:layout_constraintRight_toRightOf="@id/next_passage_list"/>
-	
-	
+
 </androidx.constraintlayout.widget.ConstraintLayout>

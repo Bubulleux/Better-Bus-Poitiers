@@ -1,5 +1,6 @@
 package com.example.vitalisapp;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.RemoteViews;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -30,9 +32,13 @@ public class FavoriteWidget extends AppWidgetProvider
 		serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
 		
+		Intent clickIntent = new Intent(context, NextPassageActivity.class);
+		PendingIntent clickPendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favorite_widget);
 		views.setRemoteAdapter(R.id.list_view, serviceIntent);
 		views.setEmptyView(R.id.list_view, R.id.example_widget_empty_view);
+		views.setPendingIntentTemplate(R.id.list_view, clickPendingIntent);
 		
 		
 		
@@ -48,7 +54,9 @@ public class FavoriteWidget extends AppWidgetProvider
 			updateAppWidget(context, appWidgetManager, appWidgetId);
 		}
 	}
-
+	
+	
+	
 	@Override
 	public void onEnabled(Context context)
 	{

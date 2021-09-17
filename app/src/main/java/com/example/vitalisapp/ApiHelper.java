@@ -156,7 +156,7 @@ public class ApiHelper implements Serializable
 		}
 		HttpUrl.Builder url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/SIRI/getSIRIWithErrors.json?networks=[1]"))
 				.newBuilder()
-				.addQueryParameter("max", "20")
+				.addQueryParameter("max", "50")
 				.addQueryParameter("stopPoint", station.id);
 		if (line != null)
 		{

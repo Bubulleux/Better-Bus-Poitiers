@@ -41,4 +41,6 @@
 	<string name="see_next_passage">Voire les prochain passage</string>
 	<string name="no_passage">Aucun passage n\'est prévue se joure la</string>
 	<string name="date">Date</string>
+	
+	<string name="connection_error">Erreur aucun réseau n\'a été trouvé</string>
 </resources>

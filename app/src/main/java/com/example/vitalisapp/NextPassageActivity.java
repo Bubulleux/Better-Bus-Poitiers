@@ -42,7 +42,7 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		setContentView(R.layout.activity_next_passage);
 		//Get Extra
-		apiHelper = new ApiHelper();
+		apiHelper = new ApiHelper(this);
 		apiHelper.token =(String) getIntent().getSerializableExtra("Token");
 		
 		

@@ -28,7 +28,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
 {
 
-	private final ApiHelper apiHelper = new ApiHelper();
+	private ApiHelper apiHelper;
 	private final List<PresetItem> presets = new ArrayList<>();
 	private final String PRESET_FILE_NAME = "timetable_presets.json";
 	public LayoutInflater inflater;
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+		apiHelper = new ApiHelper(this);
 		LoadPresets();
 
 		inflater = LayoutInflater.from(this);

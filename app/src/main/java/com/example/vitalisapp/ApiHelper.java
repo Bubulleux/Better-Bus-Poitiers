@@ -1,5 +1,13 @@
 package com.example.vitalisapp;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,10 +19,17 @@ import com.google.gson.Gson;
 
 public class ApiHelper implements Serializable
 {
-	private OkHttpClient client = new OkHttpClient();
-	public String token = "";
+	private final OkHttpClient client = new OkHttpClient();
+	public String token = null;
 	Station[] stations;
-
+	private Context context;
+	
+	public ApiHelper(Context context)
+	{
+		this.context = context;
+		CheckConnection(context);
+	}
+	
 	public void GetToken(CallbackToken callback)
 	{
 		Request request = new Request.Builder().url("https://www.vitalis-poitiers.fr/services/").build();
@@ -39,6 +54,35 @@ public class ApiHelper implements Serializable
 			}
 		});
 	}
+	
+	public boolean CheckConnection(Context context)
+	{
+		ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		boolean is_connected;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			Network nw = connectivityManager.getActiveNetwork();
+			if (nw == null) is_connected = false;
+			
+			NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
+			
+			is_connected =  actNw != null && (actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+					actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+					actNw.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ||
+					actNw.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH));
+		}
+		else {
+			NetworkInfo nwInfo = connectivityManager.getActiveNetworkInfo();
+			is_connected = nwInfo != null && nwInfo.isConnected();
+		}
+		
+		if (!is_connected) {
+			AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+			alertBuilder.setMessage(R.string.connection_error);
+			alertBuilder.setPositiveButton("Ok", null);
+			alertBuilder.create().show();
+		}
+		return  is_connected;
+	}
 
 
 	public void GetAllStations(CallbackObject<Station[]> callback)
@@ -61,7 +105,7 @@ public class ApiHelper implements Serializable
 				.build();
 
 
-		client.newCall(request).enqueue(new CallBackHttp() {
+		client.newCall(request).enqueue(new CallBackHttp(context, this) {
 			@Override
 			public void onResponseOk(Response response, String body)
 			{
@@ -88,7 +132,7 @@ public class ApiHelper implements Serializable
 
 		Request request = GetRequest(url);
 
-		client.newCall(request).enqueue(new CallBackHttp() {
+		client.newCall(request).enqueue(new CallBackHttp(context, this) {
 			@Override
 			public void onResponseOk(Response response, String body)
 			{
@@ -109,7 +153,7 @@ public class ApiHelper implements Serializable
 
 		Request request = GetRequest(url);
 
-		client.newCall(request).enqueue(new CallBackHttp() {
+		client.newCall(request).enqueue(new CallBackHttp(context, this) {
 			@Override
 			public void onResponseOk(Response response, String body)
 			{
@@ -165,7 +209,7 @@ public class ApiHelper implements Serializable
 
 		Request request = GetRequest(url.build());
 
-		client.newCall(request).enqueue(new CallBackHttp() {
+		client.newCall(request).enqueue(new CallBackHttp(context, this) {
 			@Override
 			public void onResponseOk(Response response, String body) {
 				NextPassages nextPassages = new Gson().fromJson(body, NextPassages.class);
@@ -174,34 +218,6 @@ public class ApiHelper implements Serializable
 			}
 		});
 
-	}
-
-	public NextPassages SyncGetNextPassage(Station station, Line line)
-	{
-		if (station.id == "")
-		{
-			System.out.println("Error station id is undefined");
-		}
-		HttpUrl.Builder url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/SIRI/getSIRIWithErrors.json?networks=[1]"))
-				.newBuilder()
-				.addQueryParameter("max", "20")
-				.addQueryParameter("stopPoint", station.id);
-		if (line != null)
-		{
-			url.addQueryParameter("line", line.name);
-		}
-
-		Request request = GetRequest(url.build());
-
-		try
-		{
-			Response response = client.newCall(request).execute();
-			return new Gson().fromJson(response.body().string(), NextPassages.class);
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public Station GetStationByName(String name)
@@ -242,9 +258,25 @@ public class ApiHelper implements Serializable
 
 abstract class CallBackHttp implements Callback
 {
+	Context context;
+	ApiHelper apiHelper;
+	public CallBackHttp(Context context, ApiHelper apiHelper)
+	{
+		super();
+		this.context = context;
+		this.apiHelper = apiHelper;
+	}
+	
+	
 	@Override
-	public void onFailure(@NotNull Call call, @NotNull IOException e) {
+	public void onFailure(@NotNull Call call, @NotNull IOException e)
+	{
 		e.printStackTrace();
+		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+		alertBuilder.setTitle("Error");
+		alertBuilder.setMessage(e.toString());
+		alertBuilder.setPositiveButton("Ok", null);
+		((AppCompatActivity) context).runOnUiThread(() -> alertBuilder.create().show());
 	}
 
 	@Override
@@ -257,6 +289,15 @@ abstract class CallBackHttp implements Callback
 		else
 		{
 			System.out.printf("Http Request not Successful: %s \n %s \n", response.request().url(), response.body());
+			if (response.code() == 401)
+			{
+				apiHelper.GetToken(null);
+			}
+			AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+			alertBuilder.setTitle("Error");
+			alertBuilder.setMessage(response.body().string());
+			alertBuilder.setPositiveButton("Ok", null);
+			((AppCompatActivity) context).runOnUiThread(() -> alertBuilder.create().show());
 		}
 	}
 

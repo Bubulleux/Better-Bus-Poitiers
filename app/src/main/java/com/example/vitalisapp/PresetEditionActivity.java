@@ -91,7 +91,7 @@ public class PresetEditionActivity extends AppCompatActivity
 		index = (Integer) intent.getSerializableExtra("Index");
 		newPosition = index;
 		presetsCount = (Integer) intent.getSerializableExtra("PresetsCount");
-		apiHelper = new ApiHelper();
+		apiHelper = new ApiHelper(this);
 		apiHelper.token = (String) intent.getSerializableExtra("Token");
 		apiHelper.stations = stations;
 

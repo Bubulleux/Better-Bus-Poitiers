@@ -3,6 +3,7 @@
 		xmlns:tools="http://schemas.android.com/tools"
 		package="com.example.vitalisapp">
 	
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	
 	<application
@@ -36,7 +37,8 @@
 		</activity>
 		<activity
 				android:name=".NextPassageActivity"
-				android:screenOrientation="portrait">
+				android:screenOrientation="portrait"
+				android:launchMode="singleTop">
 		</activity>
 		<activity
 				android:name=".ActivityFindStation"

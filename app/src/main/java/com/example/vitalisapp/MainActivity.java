@@ -7,14 +7,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,13 +31,10 @@ public class MainActivity extends AppCompatActivity
 
 	private CustomAdapter<PresetItem> presetListAdapter;
 
-	ActivityResultLauncher<Intent> anctivityGetOtherStation;
+	ActivityResultLauncher<Intent> activityResultLauncher;
 	ActivityResultLauncher<Intent> activityEditPreset;
-
-	public static final String PREF_NAME = "com.example.BetterVitalis_Pref";
-
-
-
+	
+	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +49,7 @@ public class MainActivity extends AppCompatActivity
 		apiHelper.GetToken(null);
 
 		//Initiate Activity Result
-		anctivityGetOtherStation = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+		activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
 				result ->
 				{
 					if (result.getResultCode() == RESULT_OK && result.getData() != null)
@@ -112,6 +105,8 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		//Init Btn
+		presetListView.setEmptyView(findViewById(R.id.empty_list_preset_text));
+		
 		findViewById(R.id.button_other).setOnClickListener(view -> ((MainActivity)view.getContext()).otherTimetable());
 
 		findViewById(R.id.button_new).setOnClickListener((View view) ->
@@ -196,12 +191,13 @@ public class MainActivity extends AppCompatActivity
 
 	private void SavePreset()
 	{
-		String presetJson = new Gson().toJson(presets.toArray());
-
-		SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putString("presets", presetJson);
-		editor.apply();
+		Helper.savePrefJson(presets.toArray(),"presets", this);
+//		String presetJson = new Gson().toJson(presets.toArray());
+//
+//		SharedPreferences prefs = getSharedPreferences(Helper.PREF_NAME, Context.MODE_PRIVATE);
+//		SharedPreferences.Editor editor = prefs.edit();
+//		editor.putString("presets", presetJson);
+//		editor.apply();
 		
 		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 		appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(new ComponentName(this, FavoriteWidget.class)), R.id.list_view);
@@ -211,14 +207,16 @@ public class MainActivity extends AppCompatActivity
 
 	private void LoadPresets()
 	{
-		SharedPreferences prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-		String presetJson = prefs.getString("presets", null);
-
-		if (presetJson == null)
+//		SharedPreferences prefs = getSharedPreferences(Helper.PREF_NAME, Context.MODE_PRIVATE);
+//		String presetJson = prefs.getString("presets", null);
+		
+		PresetItem[] dataPresets = Helper.loadPrefJson("presets", PresetItem[].class, this);
+		
+		if (dataPresets == null)
 			return;
-
+		
 		presets.clear();
-		presets.addAll(Arrays.asList(new Gson().fromJson(presetJson, PresetItem[].class)));
+		presets.addAll(Arrays.asList(dataPresets));
 
 		Toast.makeText(this, getString(R.string.preset_loaded), Toast.LENGTH_SHORT).show();
 	}
@@ -229,9 +227,15 @@ public class MainActivity extends AppCompatActivity
 
 		apiHelper.GetAllStations(object ->
 		{
-
+			String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, this);
+			if (stationsHistoryArray != null)
+			{
+				intent.putExtra("History", stationsHistoryArray);
+				System.out.println(stationsHistoryArray.length);
+			}
+			
 			intent.putExtra("Stations", object);
-			anctivityGetOtherStation.launch(intent);
+			activityResultLauncher.launch(intent);
 		});
 	}
 
@@ -246,12 +250,30 @@ public class MainActivity extends AppCompatActivity
 
 	private void GetStationNextPassage(Station station)
 	{
+		//Save To history
+		String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, this);
+		List<String> stationHistoryList = new ArrayList<>();
+		stationHistoryList.add(station.name);
+		
+		if (stationsHistoryArray != null)
+		{
+			for (String stationName : stationsHistoryArray)
+			{
+				if (!stationName.equals(station.name))
+					stationHistoryList.add(stationName);
+			}
+		}
+		
+		Helper.savePrefJson(stationHistoryList.toArray(), "station_history", this);
+		
 		System.out.printf("Station Chose: %s\n", station.name);
 		Intent intent = new Intent(this, NextPassageActivity.class);
 		intent.putExtra("Token", apiHelper.token);
 		intent.putExtra("Station", station);
 		startActivity(intent);
 	}
+	
+	
 
 	public void UpdatePreset(int i)
 	{

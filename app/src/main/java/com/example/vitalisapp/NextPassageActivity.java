@@ -1,5 +1,6 @@
 package com.example.vitalisapp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,6 +71,10 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		setLoading(false);
 		
+		((Button)findViewById(R.id.go_back_btn)).setOnClickListener((View view) ->
+		{
+			finish();
+		});
 		
 		if (preset == null)
 		{
@@ -112,12 +117,7 @@ public class NextPassageActivity extends AppCompatActivity {
 
 	}
 	
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-		finish();
-	}
+
 	
 	private void setLoading(Boolean value)
 	{

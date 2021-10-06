@@ -12,7 +12,7 @@
 			android:layout_height="wrap_content"
 			android:inputType="textPersonName"
 			android:hint="@string/search_hint"
-
+			android:importantForAutofill="no"
 			android:id="@+id/station_search_input"
 
 			app:layout_constraintTop_toTopOf="parent"/>
@@ -20,7 +20,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/station_list"
+			
 			app:layout_constraintTop_toBottomOf="@id/station_search_input"
-			/>
+			tools:listitem="@layout/station_item"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

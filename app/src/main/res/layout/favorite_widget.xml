@@ -1,46 +1,29 @@
-<LinearLayout
+<FrameLayout
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		xmlns:tools="http://schemas.android.com/tools"
-		android:theme="@style/ThemeOverlay.VItalisApp.AppWidgetContainer"
+		android:theme="@style/ThemeOverlay.BetterVitalis.AppWidgetContainer"
 		android:background="@color/widget_background_color"
 		android:id="@+id/background"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
 		android:padding="@dimen/widget_margin">
-<!--	<TextView-->
-<!--			android:layout_width="match_parent"-->
-<!--			android:layout_height="wrap_content"-->
-<!--			android:layout_weight="1"-->
-<!--			android:id="@+id/favorite_list_empty_msg"-->
-<!--			android:textSize="@dimen/widget_text_size"-->
-<!--			android:text="@string/favorite_list_empty"-->
-<!--			android:gravity="center"-->
-<!--			/>-->
-	<FrameLayout
+	
+	<TextView
+			android:id="@+id/example_widget_empty_view"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
-		
-		
-		
-		<TextView
-				android:id="@+id/example_widget_empty_view"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:background="@android:color/darker_gray"
-				android:gravity="center"
-				android:text="Empty"
-				android:textColor="@android:color/white"
-				android:textSize="20sp"
-				android:textStyle="bold" />
-		
-		<ListView
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:id="@+id/list_view"
-				android:background="@color/white"
-				tools:listitem="@layout/preset_favorite_item"/>
-	</FrameLayout>
-
-
-</LinearLayout>
+			android:layout_height="match_parent"
+			android:background="@android:color/darker_gray"
+			android:gravity="center"
+			android:text="Empty"
+			android:textColor="@android:color/white"
+			android:textSize="20sp"
+			android:textStyle="bold" />
+	
+	<ListView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/list_view"
+			android:background="@color/white"
+			tools:listitem="@layout/preset_favorite_item"/>
+</FrameLayout>

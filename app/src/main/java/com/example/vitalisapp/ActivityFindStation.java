@@ -18,6 +18,7 @@ import java.util.Locale;
 public class ActivityFindStation extends AppCompatActivity {
 
 	public Station[] stations;
+	public List<Station> history = new ArrayList<>();
 	public List<Station> stationsFind = new ArrayList<>();
 
 	public ListView stationListView;
@@ -31,6 +32,19 @@ public class ActivityFindStation extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_find_station);
 		stations = (Station[]) getIntent().getSerializableExtra("Stations");
+		String[] historyName = (String[]) getIntent().getSerializableExtra("History");
+		if (historyName != null)
+		{
+			System.out.printf("Station in historyName %d \n", historyName.length);
+			for (String historyStation : historyName)
+			{
+				for (Station station : stations)
+				{
+					if (station.name.equals(historyStation))
+						history.add(station);
+				}
+			}
+		}
 
 		System.out.printf("Station Count: %d\n", stations.length);
 
@@ -45,41 +59,48 @@ public class ActivityFindStation extends AppCompatActivity {
 			@Override
 			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2)
 			{
-				stationsFind.clear();
-				for (Station station : stations)
-				{
-					if (station.name.toLowerCase(Locale.ROOT).contains(String.valueOf(charSequence).toLowerCase(Locale.ROOT)))
-					{
-						stationsFind.add(station);
-					}
-				}
-				System.out.printf("Size Station Find: %d\n", stationsFind.size());
-				adapter.list = stationsFind;
-				adapter.notifyDataSetChanged();
+				UpdateList(charSequence);
 			}
 
 			@Override
 			public void afterTextChanged(Editable editable) { }
 		});
 
-		adapter = new CustomAdapter<Station>(this, stationsFind, new CustomAdapter.IUpdateAdapter<Station>() {
-			@Override
-			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<Station> list)
-			{
-				Station item = list.get(i);
-				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.station_item, null);
-				((TextView)layout.findViewById(R.id.station_name)).setText(item.name);
-				layout.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						GetInfo(item);
-					}
-				});
-				return layout;
-			}
+		adapter = new CustomAdapter<Station>(this, stationsFind, (i, view, viewGroup, inflater, list) ->
+		{
+			Station item = list.get(i);
+			LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.station_item, null);
+			((TextView)layout.findViewById(R.id.station_name)).setText(item.name);
+			layout.setOnClickListener(view1 -> GetInfo(item));
+			return layout;
 		});
 
 		stationListView.setAdapter(adapter);
+		UpdateList("");
+	}
+	
+	public void UpdateList(CharSequence charSequence)
+	{
+		stationsFind.clear();
+		if (charSequence.length() == 0)
+		{
+			stationsFind.addAll(history);
+			System.out.printf("Station in history %d \n", history.size());
+		}
+		else
+		{
+			for (Station station : stations)
+			{
+				if (station.name.toLowerCase(Locale.ROOT).contains(String.valueOf(charSequence).toLowerCase(Locale.ROOT)))
+				{
+					stationsFind.add(station);
+				}
+			}
+		}
+		
+		System.out.printf("Size Station Find: %d\n", stationsFind.size());
+		adapter.list = stationsFind;
+		adapter.notifyDataSetChanged();
 	}
 
 	public void GetInfo(Station station)

@@ -4,14 +4,11 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.SystemClock;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class FavoritePresetService extends RemoteViewsService
@@ -40,7 +37,7 @@ public class FavoritePresetService extends RemoteViewsService
 		@Override
 		public void onDataSetChanged()
 		{
-			SharedPreferences prefs = getApplicationContext().getSharedPreferences(MainActivity.PREF_NAME, Context.MODE_PRIVATE);
+			SharedPreferences prefs = getApplicationContext().getSharedPreferences(Helper.PREF_NAME, Context.MODE_PRIVATE);
 			String presetsJson = prefs.getString("presets", null);
 			
 			PresetItem[] presets;

@@ -5,16 +5,14 @@
 		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
+		android:padding="@dimen/layout_padding"
 		tools:context=".MainActivity">
 
 	<Button
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/new_btn"
-			android:textSize="@dimen/btn_text_size"
 			android:id="@+id/button_new"
-			android:layout_margin="5dp"
-
 
 			app:layout_constraintBottom_toTopOf="@id/button_other"/>
 
@@ -22,22 +20,32 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/other"
-			android:textSize="@dimen/btn_text_size"
 			android:id="@+id/button_other"
-			android:layout_margin="5dp"
-
 
 			app:layout_constraintBottom_toBottomOf="parent"/>
 
-
-	<ListView
+	<FrameLayout
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:id="@+id/preset_list"
-
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintBottom_toTopOf="@id/button_new"
-			/>
+			app:layout_constraintBottom_toTopOf="@id/button_new">
+		
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:text="@string/preset_list_empty"
+				android:textSize="@dimen/textSize"
+				android:id="@+id/empty_list_preset_text"
+				android:gravity="center"
+				android:visibility="invisible"/>
+		
+		<ListView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/preset_list"
+				tools:listitem="@layout/preset_item"/>
+	</FrameLayout>
+	
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

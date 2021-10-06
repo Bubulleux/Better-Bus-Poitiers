@@ -13,9 +13,10 @@
 			android:layout_height="wrap_content"
 			android:text="@string/name_preset"
 			android:textSize="@dimen/textSize"
+			android:id="@+id/name_preset_text_view"
+			
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintLeft_toLeftOf="parent"
-			android:id="@+id/name_preset_text_view"/>
+			app:layout_constraintLeft_toLeftOf="parent"/>
 	<EditText
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -23,17 +24,17 @@
 			android:textSize="20sp"
 			android:inputType="text"
 			android:maxLines="1"
+			android:importantForAutofill="no"
+			android:id="@+id/name_preset_edit_text"
 
 
 			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintRight_toRightOf="parent"
-			app:layout_constraintLeft_toRightOf="@id/name_preset_text_view"
-			android:id="@+id/name_preset_edit_text"/>
-
-
-
-
+			app:layout_constraintLeft_toRightOf="@id/name_preset_text_view"/>
+	
+	
 <!--Station -->
 	<TextView
 			android:layout_width="wrap_content"
@@ -41,15 +42,18 @@
 			android:id="@+id/station_label"
 			android:text="@string/station_preset"
 			android:textSize="@dimen/textSize"
+			
+			android:layout_marginTop="@dimen/top_margin"
 			app:layout_constraintTop_toBottomOf="@id/name_preset_edit_text"
-			app:layout_constraintLeft_toLeftOf="parent"
-			android:layout_marginTop="@dimen/top_margin"/>
+			app:layout_constraintLeft_toLeftOf="parent"/>
 	<TextView
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:textSize="@dimen/textSize"
-			android:layout_marginLeft="10dp"
 			android:id="@+id/station_name"
+			
+			android:layout_marginLeft="10dp"
+			android:layout_marginStart="10dp"
 			app:layout_constraintTop_toTopOf="@+id/station_label"
 			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintLeft_toRightOf="@id/station_label"/>
@@ -60,40 +64,39 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/change_station_btn"
 			android:text="@string/change_btn"
-			android:textSize="@dimen/btn_text_size"
-			app:layout_constraintTop_toBottomOf="@id/station_label"
-			/>
+			
+			app:layout_constraintTop_toBottomOf="@id/station_label"/>
 <!--Line-->
 	<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/line_text_view"
-			app:layout_constraintTop_toBottomOf="@id/change_station_btn"
-			android:layout_marginTop="@dimen/top_margin"
 			android:textSize="@dimen/textSize"
-			android:text="@string/line_grid"/>
+			android:text="@string/line_grid"
+			
+			android:layout_marginTop="@dimen/top_margin"
+			app:layout_constraintTop_toBottomOf="@id/change_station_btn"/>
 
 	<GridView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/grid_view_line"
 			android:orientation="vertical"
-			android:numColumns="10"
+			android:numColumns="12"
 
 			app:layout_constraintTop_toBottomOf="@id/line_text_view"
-
-			/>
+			
+			tools:listitem="@layout/line_item"/>
 
 	<Button
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:id="@+id/change_line_btn"
 			android:text="@string/change_btn"
-			android:textSize="@dimen/btn_text_size"
+			
 			app:layout_constraintTop_toBottomOf="@id/grid_view_line"/>
 
 <!--Favorite-->
-
 	<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -109,6 +112,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/favorite_check_box"
+			
 			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintTop_toTopOf="@id/favorite_text_view"/>
 
@@ -130,9 +134,10 @@
 			android:id="@+id/output_position"
 			android:textSize="@dimen/textSize"
 			android:text="000"
-			android:gravity="right"
+			android:gravity="end"
 
 			android:layout_marginRight="10dp"
+			android:layout_marginEnd="10dp"
 			app:layout_constraintTop_toTopOf="@id/text_order"
 			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintLeft_toRightOf="@id/text_order"/>
@@ -142,7 +147,6 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/up_btn"
 			android:text="@string/up"
-			android:textSize="@dimen/btn_text_size"
 
 			app:layout_constraintTop_toBottomOf="@id/text_order"
 			app:layout_constraintRight_toRightOf="parent"/>
@@ -152,21 +156,16 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/down_btn"
 			android:text="@string/down"
-			android:textSize="@dimen/btn_text_size"
 
 			app:layout_constraintTop_toBottomOf="@id/text_order"
 			app:layout_constraintLeft_toLeftOf="parent"/>
-
-
-
-
+	
 <!--Button-->
 	<Button
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:id="@+id/save_btn"
 			android:text="@string/save_txt"
-			android:textSize="@dimen/btn_text_size"
 
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintRight_toRightOf="parent"/>
@@ -176,7 +175,6 @@
 			android:layout_height="wrap_content"
 			android:id="@+id/delete_btn"
 			android:text="@string/delete_btn"
-			android:textSize="@dimen/btn_text_size"
 
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintLeft_toLeftOf="parent"/>

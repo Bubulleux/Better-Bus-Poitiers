@@ -70,7 +70,7 @@ public class FavoritePresetService extends RemoteViewsService
 			views.setTextViewText(R.id.preset_name, list.get(position).name);
 			
 			Intent fillIntent = new Intent();
-			fillIntent.putExtra("TimetablePreset", (PresetItem) list.get(position));
+			fillIntent.putExtra("StartNextPassage", (PresetItem) list.get(position));
 			views.setOnClickFillInIntent(R.id.preset_name, fillIntent);
 			return views;
 		}

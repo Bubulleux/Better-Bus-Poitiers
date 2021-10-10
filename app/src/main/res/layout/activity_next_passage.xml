@@ -18,67 +18,87 @@
 			android:gravity="center"
 			app:layout_constraintTop_toTopOf="parent"/>
 	
-	<ListView
+	<FrameLayout
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:id="@+id/next_passage_list"
-			tools:listitem="@layout/next_passage_item"
-			
-			app:layout_constraintTop_toBottomOf="@+id/station_name"
-			app:layout_constraintBottom_toTopOf="@id/see_all_btn"/>
-	
-	<TextView
-			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:id="@+id/next_passage_list_empty_txt"
-			android:text="@string/no_next_passage"
-			android:textSize="@dimen/textSize"
-			android:gravity="center"
-			app:layout_constraintTop_toTopOf="@id/next_passage_list"
-			app:layout_constraintBottom_toBottomOf="@id/next_passage_list"
-			app:layout_constraintLeft_toLeftOf="@id/next_passage_list"
-			app:layout_constraintRight_toRightOf="@id/next_passage_list"/>
-	
-	<Button
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:id="@+id/refresh_btn"
-			android:text="@string/refresh"
-			
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintLeft_toRightOf="@id/go_back_btn"
-			app:layout_constraintRight_toRightOf="parent"/>
-	
-	<Button
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:id="@+id/go_back_btn"
-			android:text="@string/go_back"
-			
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintRight_toLeftOf="@id/refresh_btn"
-			app:layout_constraintLeft_toLeftOf="parent"/>
-	
-	
-	<Button
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/see_all_btn"
-			android:text="@string/see_all_line_btn"
-
-			app:layout_constraintBottom_toTopOf="@id/refresh_btn"/>
+			app:layout_constraintTop_toBottomOf="@id/station_name"
+			app:layout_constraintBottom_toTopOf="@id/btn_layout"
+			android:id="@+id/list_frame_layout">
 		
-	<ProgressBar
-			style="?android:attr/progressBarStyle"
-			android:layout_width="wrap_content"
+		<ListView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/next_passage_list"
+				tools:listitem="@layout/next_passage_item"/>
+		
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/next_passage_list_empty_txt"
+				android:text="@string/no_next_passage"
+				android:textSize="@dimen/textSize"
+				android:gravity="center"/>
+		
+		<ProgressBar
+				style="?android:attr/progressBarStyle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/progressBar2"
+				android:visibility="visible"
+				android:layout_gravity="center"/>
+	</FrameLayout>
+	
+	<GridLayout
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:id="@+id/progressBar2"
-			android:visibility="visible"
+			android:id="@+id/btn_layout"
 			
-			app:layout_constraintTop_toTopOf="@id/next_passage_list"
-			app:layout_constraintBottom_toBottomOf="@id/next_passage_list"
-			app:layout_constraintLeft_toLeftOf="@id/next_passage_list"
-			app:layout_constraintRight_toRightOf="@id/next_passage_list"/>
+			app:layout_constraintBottom_toBottomOf="parent">
+		
+		<Button
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/see_all_btn"
+				android:text="@string/see_all_line_btn"
+				
+				android:layout_columnSpan="3"
+				android:layout_row="0"
+				android:layout_column="0"/>
+		<Button
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/go_back_btn"
+				android:text="@string/go_back"
+				
+				android:layout_columnWeight="1"
+				android:layout_row="1"
+				android:layout_column="0"
+				tools:targetApi="lollipop"/>
+		
+		<Button
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/fix_timetable_btn"
+				android:text="@string/fix_timetable"
+				
+				android:layout_columnWeight="1"
+				android:layout_row="1"
+				android:layout_column="1"
+				tools:targetApi="lollipop"/>
+		
+		<Button
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/refresh_btn"
+				android:text="@string/refresh"
+				
+				android:layout_columnWeight="1"
+				android:layout_row="1"
+				android:layout_column="2"
+				tools:targetApi="lollipop"/>
+	</GridLayout>
+		
+	
 	
 	
 </androidx.constraintlayout.widget.ConstraintLayout>

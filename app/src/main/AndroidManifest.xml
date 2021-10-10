@@ -14,7 +14,10 @@
 			android:supportsRtl="true"
 			android:theme="@style/Theme.BetterVitalis"
 			tools:ignore="LockedOrientationActivity">
-		<activity android:name=".ActivityFixTimeTable">
+		<activity
+				android:name=".ActivityFixTimeTable"
+				android:screenOrientation="portrait"
+				android:launchMode="singleTop">
 		</activity>
 		
 		<receiver android:name=".FavoriteWidget">

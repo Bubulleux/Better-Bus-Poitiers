@@ -23,7 +23,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
-
+	public static boolean is_running = false;
+	
+	
 	private ApiHelper apiHelper;
 	private final List<PresetItem> presets = new ArrayList<>();
 	private final String PRESET_FILE_NAME = "timetable_presets.json";
@@ -38,6 +40,9 @@ public class MainActivity extends AppCompatActivity
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		is_running = true;
+		
+		
         setContentView(R.layout.activity_main);
 		apiHelper = new ApiHelper(this);
 		LoadPresets();
@@ -172,12 +177,24 @@ public class MainActivity extends AppCompatActivity
 				return view;
 			}
 		});
+		
 
 		presetListView.setAdapter(presetListAdapter);
-
-
-
+		
+		//Get Auto Load next Passage
+		PresetItem presetStart = (PresetItem) getIntent().getSerializableExtra("StartNextPassage");
+		if (presetStart != null)
+		{
+			GoToTimetable(presetStart);
+		}
     }
+	
+	@Override
+	public void onStop()
+	{
+		is_running = false;
+		super.onStop();
+	}
 	
 	private void UpdateWidgets()
 	{

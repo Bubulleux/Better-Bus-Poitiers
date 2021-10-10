@@ -13,6 +13,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Objects;
 
 import com.google.gson.Gson;
@@ -146,7 +149,7 @@ public class ApiHelper implements Serializable
 	{
 		HttpUrl url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/Station/getBoardingIDs.json?networks=[1]"))
 				.newBuilder()
-				.addQueryParameter("line", line.name)
+				.addQueryParameter("line", line.line_id)
 				.addQueryParameter("station", station.name)
 				.build();
 
@@ -158,39 +161,42 @@ public class ApiHelper implements Serializable
 			public void onResponseOk(Response response, String body)
 			{
 				StationLineInfo info = new Gson().fromJson(body, StationLineInfo.class);
+				System.out.println(body);
 				station.id = info.stop_id;
-
-				for (int i = 0; i < info.boarding_ids.aller.length; i++)
-					GetStationByName(line.direction.aller[i]).id = info.boarding_ids.aller[i];
-
-				for (int i = 0; i < info.boarding_ids.retour.length; i++)
-					GetStationByName(line.direction.retour[i]).id = info.boarding_ids.retour[i];
-
+				
 				if (callback != null)
 					callback.onResponse(info);
 			}
 		});
 	}
 
-//	public void GetTimeTable(Station station, CallbackObject<Line[]> callback)
-//	{
-//		HttpUrl url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/Line/getStationLines.json?networks=[1]"))
-//				.newBuilder()
-//				.addQueryParameter("station", station.name)
-//				.build();
-//
-//
-//		Request request = GetRequest(url);
-//
-//		client.newCall(request).enqueue(new CallBackHttp() {
-//			@Override
-//			public void onResponseOk(Response response, String body)
-//			{
-//				Line[] lines = new Gson().fromJson(body, Line[].class);
-//				callback.onResponse(lines);
-//			}
-//		});
-//	}
+	public void GetTimeTable(String stationId, Line line, int[] terminus, int direction, Calendar date, CallbackObject<TimeTable> callback)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String terminusString = Arrays.toString(terminus);
+		System.out.println(terminusString);
+		HttpUrl url = Objects.requireNonNull(HttpUrl.parse("https://api.scoop.airweb.fr/gtfs/Horaire/getHoraire.json?networks=[1]"))
+				.newBuilder()
+				.addQueryParameter("boarding_id", stationId)
+				.addQueryParameter("date", sdf.format(date.getTime()))
+				.addQueryParameter("direction", String.valueOf(direction))
+				.addQueryParameter("line", line.line_id)
+				.addQueryParameter("stop_id", terminusString)
+				.build();
+
+		System.out.println(url);
+		Request request = GetRequest(url);
+
+		client.newCall(request).enqueue(new CallBackHttp(context, this) {
+			@Override
+			public void onResponseOk(Response response, String body)
+			{
+				System.out.println(body);
+				TimeTable timeTable = new Gson().fromJson(body, TimeTable.class);
+				callback.onResponse(timeTable);
+			}
+		});
+	}
 
 	public void GetNextPassage(Station station, Line line, CallbackObject<NextPassages> callback)
 	{

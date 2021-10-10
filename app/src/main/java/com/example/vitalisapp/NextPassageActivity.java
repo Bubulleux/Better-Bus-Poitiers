@@ -21,6 +21,7 @@ public class NextPassageActivity extends AppCompatActivity {
 	private ListView nextPassageList;
 	private TextView emptyListTxt;
 	private ProgressBar progressBar;
+	private FrameLayout listFrameLayout;
 	private Button refreshBtn;
 	private Button seeAllBtn;
 
@@ -64,6 +65,7 @@ public class NextPassageActivity extends AppCompatActivity {
 		refreshBtn = findViewById(R.id.refresh_btn);
 		emptyListTxt = findViewById(R.id.next_passage_list_empty_txt);
 		progressBar = findViewById(R.id.progressBar2);
+		listFrameLayout = findViewById(R.id.list_frame_layout);
 		
 		nextPassageList.setEmptyView(emptyListTxt);
 
@@ -78,9 +80,7 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		if (preset == null)
 		{
-			ViewGroup.LayoutParams params = seeAllBtn.getLayoutParams();
-			params.height = 1;
-			seeAllBtn.setLayoutParams(params);
+			((ViewGroup) seeAllBtn.getParent()).removeView(seeAllBtn);
 		}
 		else
 		{
@@ -89,14 +89,8 @@ public class NextPassageActivity extends AppCompatActivity {
 				if (preset == null)
 					return;
 				preset = null;
-				view.setVisibility(View.INVISIBLE);
-
-				ConstraintLayout constrainLayout = findViewById(R.id.constraint_layout);
-				ConstraintSet constraintSet = new ConstraintSet();
-				constraintSet.clone(constrainLayout);
-				constraintSet.connect(R.id.next_passage_list, ConstraintSet.BOTTOM, R.id.refresh_btn, ConstraintSet.TOP);
-
-				constrainLayout.setConstraintSet(constraintSet);
+				
+				((ViewGroup) view.getParent()).removeView(view);
 
 				Refresh();
 			});
@@ -110,6 +104,16 @@ public class NextPassageActivity extends AppCompatActivity {
 				Refresh();
 			}
 		});
+		
+		((Button) findViewById(R.id.fix_timetable_btn)).setOnClickListener((View view) ->
+		{
+			Intent intent = new Intent(this, ActivityFixTimeTable.class);
+			intent.putExtra("Station", station);
+			intent.putExtra("Token", apiHelper.token);
+			startActivity(intent);
+			finish();
+		});
+		
 		stationTextView.setText(station.name);
 
 		InitAdapter();
@@ -160,7 +164,11 @@ public class NextPassageActivity extends AppCompatActivity {
 		{
 			return;
 		}
+		
+		passages.clear();
+		runOnUiThread(() -> listAdapter.notifyDataSetChanged());
 		setLoading(true);
+		
 		apiHelper.GetNextPassage(station, null, object ->
 		{
 			passages.clear();
@@ -191,7 +199,6 @@ public class NextPassageActivity extends AppCompatActivity {
 					passages.add(passage);
 				}
 			}
-			
 			setLoading(false);
 			runOnUiThread(() -> listAdapter.notifyDataSetChanged());
 		});

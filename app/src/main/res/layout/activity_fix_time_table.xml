@@ -16,82 +16,132 @@
 			android:gravity="center"
 			app:layout_constraintTop_toTopOf="parent"
 			/>
-	
-	
-	<ListView
+	<ScrollView
 			android:layout_width="match_parent"
 			android:layout_height="0dp"
-			android:id="@+id/next_passage_list"
-			tools:listitem="@layout/next_passage_item"
+			
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent">
+		
+	</ScrollView>
+	<FrameLayout
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			
 			
 			app:layout_constraintTop_toBottomOf="@+id/station_name"
-			app:layout_constraintBottom_toTopOf="@+id/direction_txt"/>
+			app:layout_constraintBottom_toTopOf="@+id/table_layout_btn">
+		<ListView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/next_passage_list"
+				tools:listitem="@layout/next_passage_item"/>
+		
+		<TextView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:id="@+id/next_passage_list_empty_txt"
+				android:text="@string/no_passage"
+				android:textSize="@dimen/textSize"
+				android:gravity="center"
+				/>
+		
+		<ProgressBar
+				style="?android:attr/progressBarStyle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/progressBar"
+				android:visibility="visible"
+				
+				android:layout_gravity="center"/>
+	</FrameLayout>
 	
-	<TextView
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:id="@+id/next_passage_list_empty_txt"
-			android:text="@string/no_passage"
-			android:textSize="@dimen/textSize"
-			android:gravity="center"
-			app:layout_constraintTop_toTopOf="@id/next_passage_list"
-			app:layout_constraintBottom_toBottomOf="@id/next_passage_list"
-			app:layout_constraintLeft_toLeftOf="@id/next_passage_list"
-			app:layout_constraintRight_toRightOf="@id/next_passage_list"
-			/>
-	
-	
-	<TextView
-			android:text="Direction"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/direction_txt"
-			android:textSize="@dimen/textSize"
-			android:layout_margin="5dp"
-			app:layout_constraintBottom_toTopOf="@id/change_direction_btn"
-			/>
-	
-	<Button
-			android:text="@string/change_btn"
-			android:textSize="@dimen/btn_text_size"
+	<TableLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:layout_constraintBottom_toTopOf="@id/date_input"
-			android:layout_margin="5dp"
-			android:id="@+id/change_direction_btn"/>
-	
-	<EditText
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:inputType="date"
-			android:ems="10"
-			android:id="@+id/date_input"
-			android:hint="@string/date"
-			android:layout_margin="5dp"
-			app:layout_constraintBottom_toTopOf="@+id/see_next_passage"/>
-	
-	<Button
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/see_next_passage"
-			android:text="@string/see_next_passage"
-			android:layout_margin="5dp"
-			android:textSize="@dimen/btn_text_size"
+			android:id="@+id/table_layout_btn"
 			
-			app:layout_constraintBottom_toBottomOf="parent"/>
-	
-	
-	
-	<ProgressBar
-			style="?android:attr/progressBarStyle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:id="@+id/progressBar2"
-			android:visibility="visible"
+			app:layout_constraintBottom_toBottomOf="parent">
+		
+		<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
 			
-			app:layout_constraintTop_toTopOf="@id/next_passage_list"
-			app:layout_constraintBottom_toBottomOf="@id/next_passage_list"
-			app:layout_constraintLeft_toLeftOf="@id/next_passage_list"
-			app:layout_constraintRight_toRightOf="@id/next_passage_list"/>
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="25sp"
+					android:text="Ligne: " />
+			
+			<Spinner
+					android:id="@+id/line_spinner"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					
+					android:layout_weight="1"/>
+		</TableRow>
+		
+		<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+			
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="25sp"
+					android:text="Destination: " />
+			
+			<Spinner
+					android:id="@+id/destination_spinner"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					
+					android:layout_weight="1"/>
+		</TableRow>
+		
+		<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+			
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="25sp"
+					android:text="Date: "/>
+			
+			<EditText
+					android:id="@+id/date_input"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:importantForAutofill="no"
+					android:inputType="date"
+					android:clickable="false"
+					android:cursorVisible="false"
+					android:focusable="false"
+					android:focusableInTouchMode="false"
+					
+					android:layout_weight="1"/>
+		</TableRow>
+		
+		<TableRow
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+			
+			<Button
+					android:id="@+id/button5"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_column="0"
+					android:layout_weight="1"
+					android:text="@string/go_back" />
+			
+			<Button
+					android:id="@+id/button6"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:text="Prochain Passage" />
+		</TableRow>
+	</TableLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

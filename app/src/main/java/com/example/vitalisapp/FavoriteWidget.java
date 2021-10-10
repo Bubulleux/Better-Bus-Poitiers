@@ -32,7 +32,7 @@ public class FavoriteWidget extends AppWidgetProvider
 		serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
 		
-		Intent clickIntent = new Intent(context, NextPassageActivity.class);
+		Intent clickIntent = new Intent(context, MainActivity.class);
 		PendingIntent clickPendingIntent = PendingIntent.getActivity(context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.favorite_widget);

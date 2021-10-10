@@ -21,6 +21,11 @@ class Line implements Serializable
 	String name;
 	String color;
 	Direction direction;
+	@Override
+	public String toString()
+	{
+		return String.format("%s- %s", line_id, name);
+	}
 }
 
 class Direction implements Serializable

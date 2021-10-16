@@ -46,4 +46,5 @@
 	<string name="go_back">Retour</string>
 	<string name="preset_list_empty">La liste des préréglage est vide.\n(Créer s\'en un pour le voire apparaitre)</string>
 	<string name="fix_timetable">Horraire Fix</string>
+	<string name="next_passge_txt">Prochain Passage</string>
 </resources>

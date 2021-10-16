@@ -2,30 +2,38 @@ package com.example.vitalisapp;
 
 import android.app.DatePickerDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import com.example.vitalisapp.databinding.FixeTimetableItemBinding;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 public class ActivityFixTimeTable extends AppCompatActivity
 {
 	private EditText dateInput;
 	private Spinner lineInput;
 	private Spinner destinationInput;
+	private ListView timeTableList;
 	
 	private Station station;
-	private Line[] lines;
+	private List<Line> lines = new ArrayList<>();
 	private Line curLine;
 	private StationLineInfo lineInfo;
 	int direction;
 	
 	private ApiHelper apiHelper;
 	private Calendar dateSearch;
+	
+	private CustomAdapter<FixPassage> listAdapter;
+	private List<FixPassage> fixPassagesList = new ArrayList<>();
+	
+	private ArrayAdapter<Line> lineArrayAdapter;
 	
 	
 	@Override
@@ -47,6 +55,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		dateInput = findViewById(R.id.date_input);
 		lineInput = findViewById(R.id.line_spinner);
 		destinationInput = findViewById(R.id.destination_spinner);
+		timeTableList = findViewById(R.id.list_view);
 		
 		//Init Views
 		((TextView) findViewById(R.id.station_name)).setText(station.name);
@@ -75,7 +84,10 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
 			{
-				curLine = lines[position];
+				curLine = position == 0 ? null : lines.get(position);
+				if (curLine == null)
+					return;
+				
 				apiHelper.GetStationLineId(station, curLine, (StationLineInfo stationLineInfo) ->
 				{
 					lineInfo = stationLineInfo;
@@ -96,6 +108,39 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			}
 		});
 		
+		lineArrayAdapter = new ArrayAdapter<Line>(this, R.layout.support_simple_spinner_dropdown_item, lines)
+		{
+			@Override
+			public boolean isEnabled(int position)
+			{
+				return true;
+			}
+			
+			@Override
+			public View getDropDownView(int position, View covertView, ViewGroup parent)
+			{
+				TextView TextView = (TextView) super.getDropDownView(position, covertView, parent);
+				if (position == 0)
+				{
+					TextView.setText("NaN");
+				}
+				return TextView;
+			}
+			
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent)
+			{
+				TextView textView = (TextView) super.getView(position, convertView, parent);
+				if (position == 0)
+					textView.setText("NaN");
+				
+				return textView;
+			}
+			
+		};
+		lineArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+		lineInput.setAdapter(lineArrayAdapter);
+		
 		destinationInput.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
 		{
 			@Override
@@ -111,16 +156,45 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			
 			}
 		});
+		
+		listAdapter = new CustomAdapter<FixPassage>(this, fixPassagesList, new CustomAdapter.IUpdateAdapter<FixPassage>()
+		{
+			@Override
+			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<FixPassage> list)
+			{
+				FixPassage item = list.get(i);
+				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fixe_timetable_item, null);
+				((TextView) layout.findViewById(R.id.txt_hour)).setText(String.format("%02d", item.hour));
+				
+				for (int j = 0; j < item.minutes.length; j++)
+				{
+					LinearLayout linearLayoutMinute = (LinearLayout) inflater.inflate(R.layout.minute_item_fixe_timetable, null);
+					((TextView)linearLayoutMinute.findViewById(R.id.minute_txt)).setText(String.format("%02d", item.minutes[j]));
+					((TextView)linearLayoutMinute.findViewById(R.id.label_txt)).setText(String.format("%c", item.labels[j]));
+					layout.addView(linearLayoutMinute);
+				}
+				
+				return layout;
+			}
+		});
+		
+		((Button)findViewById(R.id.go_back_btn)).setOnClickListener((View view) -> finish());
+		timeTableList.setAdapter(listAdapter);
 	}
 	
 	public void GetLines()
 	{
 		apiHelper.GetStationLine(station, (Line[] linesCallBack) ->
 		{
-			lines = linesCallBack;
-			ArrayAdapter<Line> lineArrayAdapter = new ArrayAdapter<Line>(this, R.layout.support_simple_spinner_dropdown_item, lines);
-			lineArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-			runOnUiThread(() -> lineInput.setAdapter(lineArrayAdapter));
+			lines.clear();
+			lines.add(new Line());
+			lines.addAll(Arrays.asList(linesCallBack));
+//			ArrayAdapter<Line> lineArrayAdapter = new ArrayAdapter<Line>(this, R.layout.support_simple_spinner_dropdown_item, lines);
+//			lineArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+			runOnUiThread(() ->
+			{
+				lineArrayAdapter.notifyDataSetChanged();
+			});
 		});
 	}
 	
@@ -146,11 +220,61 @@ public class ActivityFixTimeTable extends AppCompatActivity
 					@Override
 					public void onResponse(TimeTable object)
 					{
+						fixPassagesList.clear();
+						int hour =  -1;
+						List<Integer> minutes = new ArrayList<>();
+						List<Character> labels = new ArrayList<>();
+						Calendar scheduleDate = Calendar.getInstance();
+						
+						SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 						for (Schedule schedule : object.horaire)
 						{
-							System.out.printf("%s %s, ", schedule.time, schedule.label);
+							try
+							{
+								scheduleDate.setTime(sdf.parse(schedule.time));
+							} catch (ParseException e)
+							{
+								e.printStackTrace();
+							}
+							
+							if (hour != scheduleDate.get(Calendar.HOUR_OF_DAY))
+							{
+								if (hour != -1)
+									fixPassagesList.add(new FixPassage(hour, minutes, labels));
+								
+								hour = scheduleDate.get(Calendar.HOUR_OF_DAY);
+								minutes.clear();
+								labels.clear();
+							}
+							minutes.add(scheduleDate.get(Calendar.MINUTE));
+							labels.add(schedule.label.charAt(0));
 						}
+						if (hour != -1)
+							fixPassagesList.add(new FixPassage(hour, minutes, labels));
+						
+						listAdapter.list = fixPassagesList;
+						runOnUiThread(() -> listAdapter.notifyDataSetChanged());
 					}
 				});
 	}
+	
+	public class FixPassage
+	{
+		int hour;
+		int[] minutes;
+		char[] labels;
+		
+		public FixPassage(int hour, List<Integer> minutes, List<Character> labels)
+		{
+			this.hour = hour;
+			this.minutes = new int[minutes.size()];
+			this.labels = new char[labels.size()];
+			for (int i = 0; i < minutes.size(); i++)
+			{
+				this.minutes[i] = minutes.get(i);
+				this.labels[i] = labels.get(i);
+			}
+		}
+	}
 }
+

@@ -17,10 +17,10 @@ class Lines
 
 class Line implements Serializable
 {
-	String line_id;
-	String name;
-	String color;
-	Direction direction;
+	String line_id = "";
+	String name = "";
+	String color = "";
+	Direction direction = null;
 	@Override
 	public String toString()
 	{

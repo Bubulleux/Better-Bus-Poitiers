@@ -1,5 +1,6 @@
 package com.example.vitalisapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -34,7 +35,12 @@ public class NextPassageActivity extends AppCompatActivity {
 	private PresetItem preset;
 	private Line[] lines;
 	private boolean load;
-
+	
+	/* Intent Extra:
+		"Token": api Token (String)
+		"Station": (Station)
+		"TimetablePreset": (PresetItem)
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -118,7 +124,6 @@ public class NextPassageActivity extends AppCompatActivity {
 
 		InitAdapter();
 		InitClient();
-
 	}
 	
 

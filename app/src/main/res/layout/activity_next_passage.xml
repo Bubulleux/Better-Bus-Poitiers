@@ -37,7 +37,8 @@
 				android:id="@+id/next_passage_list_empty_txt"
 				android:text="@string/no_next_passage"
 				android:textSize="@dimen/textSize"
-				android:gravity="center"/>
+				android:gravity="center"
+				android:visibility="invisible"/>
 		
 		<ProgressBar
 				style="?android:attr/progressBarStyle"

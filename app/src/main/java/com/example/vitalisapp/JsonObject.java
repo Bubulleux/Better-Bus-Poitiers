@@ -7,6 +7,8 @@ class Station implements Serializable
 	String stop_id;
 	String id = "";
 	String name;
+	Float lat;
+	Float lng;
 }
 
 

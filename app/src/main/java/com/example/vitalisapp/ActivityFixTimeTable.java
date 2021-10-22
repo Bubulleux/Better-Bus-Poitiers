@@ -1,6 +1,7 @@
 package com.example.vitalisapp;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import com.example.vitalisapp.databinding.FixeTimetableItemBinding;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,6 +20,9 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	private Spinner lineInput;
 	private Spinner destinationInput;
 	private ListView timeTableList;
+	private TextView labelTextView;
+	private ProgressBar progressBar;
+	private TextView emptyListTextView;
 	
 	private Station station;
 	private List<Line> lines = new ArrayList<>();
@@ -35,6 +38,10 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	
 	private ArrayAdapter<Line> lineArrayAdapter;
 	
+	/* Intent Extra:
+		"Token": api Token (String)
+		"Station": (Station)
+	 */
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -56,6 +63,9 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		lineInput = findViewById(R.id.line_spinner);
 		destinationInput = findViewById(R.id.destination_spinner);
 		timeTableList = findViewById(R.id.list_view);
+		labelTextView = findViewById(R.id.label_text_view);
+		progressBar = findViewById(R.id.progressBar);
+		emptyListTextView = findViewById(R.id.timetable_list_empty);
 		
 		//Init Views
 		((TextView) findViewById(R.id.station_name)).setText(station.name);
@@ -79,6 +89,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			datePickerDialog.show();
 		});
 		
+		timeTableList.setEmptyView(emptyListTextView);
 		lineInput.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
 		{
 			@Override
@@ -87,6 +98,8 @@ public class ActivityFixTimeTable extends AppCompatActivity
 				curLine = position == 0 ? null : lines.get(position);
 				if (curLine == null)
 					return;
+				
+				runOnUiThread(() ->  emptyListTextView.setText(getString(R.string.timetable_list_empty)));
 				
 				apiHelper.GetStationLineId(station, curLine, (StationLineInfo stationLineInfo) ->
 				{
@@ -113,7 +126,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			@Override
 			public boolean isEnabled(int position)
 			{
-				return true;
+				return position != 0;
 			}
 			
 			@Override
@@ -122,7 +135,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 				TextView TextView = (TextView) super.getDropDownView(position, covertView, parent);
 				if (position == 0)
 				{
-					TextView.setText("NaN");
+					TextView.setText(R.string.select_line);
 				}
 				return TextView;
 			}
@@ -132,7 +145,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			{
 				TextView textView = (TextView) super.getView(position, convertView, parent);
 				if (position == 0)
-					textView.setText("NaN");
+					textView.setText(R.string.select_line);
 				
 				return textView;
 			}
@@ -177,15 +190,27 @@ public class ActivityFixTimeTable extends AppCompatActivity
 				return layout;
 			}
 		});
+		timeTableList.setAdapter(listAdapter);
 		
 		((Button)findViewById(R.id.go_back_btn)).setOnClickListener((View view) -> finish());
-		timeTableList.setAdapter(listAdapter);
+		
+		((Button)findViewById(R.id.next_passage_btn)).setOnClickListener((View view) ->
+		{
+			Intent intent = new Intent(this, NextPassageActivity.class);
+			intent.putExtra("Token", apiHelper.token);
+			intent.putExtra("Station", station);
+			
+			startActivity(intent);
+			finish();
+		});
 	}
 	
 	public void GetLines()
 	{
+		setLoading(true);
 		apiHelper.GetStationLine(station, (Line[] linesCallBack) ->
 		{
+			setLoading(false);
 			lines.clear();
 			lines.add(new Line());
 			lines.addAll(Arrays.asList(linesCallBack));
@@ -194,7 +219,21 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			runOnUiThread(() ->
 			{
 				lineArrayAdapter.notifyDataSetChanged();
+				emptyListTextView.setText(getString(R.string.select_line));
 			});
+		});
+	}
+	
+	public void setLoading(boolean isLoading)
+	{
+		int visible_if_loading = isLoading ? View.VISIBLE : View.INVISIBLE;
+		int invisible_if_loading = isLoading ? View.INVISIBLE : View.VISIBLE;
+		runOnUiThread(() ->
+		{
+			progressBar.setVisibility(visible_if_loading);
+			timeTableList.setVisibility(invisible_if_loading);
+			if (isLoading)
+				emptyListTextView.setVisibility(invisible_if_loading);
 		});
 	}
 	
@@ -202,12 +241,17 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("dd  MMM  yyyy");
 		dateInput.setText(sdf.format(dateSearch.getTime()));
+		RefreshTimeTable();
 	}
 	
 	public void RefreshTimeTable()
 	{
+		if (curLine == null)
+			return;
+		
+		setLoading(true);
 		String[] terminusArray = (direction == 1) ? lineInfo.boarding_ids.aller : lineInfo.boarding_ids.retour;
-		System.out.printf("terminusLength: %d\n", terminusArray.length);
+		
 		int[] terminusArrayInt = new int[terminusArray.length];
 		for (int i = 0; i < terminusArrayInt.length; i++)
 		{
@@ -220,6 +264,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 					@Override
 					public void onResponse(TimeTable object)
 					{
+						setLoading(false);
 						fixPassagesList.clear();
 						int hour =  -1;
 						List<Integer> minutes = new ArrayList<>();
@@ -254,6 +299,16 @@ public class ActivityFixTimeTable extends AppCompatActivity
 						
 						listAdapter.list = fixPassagesList;
 						runOnUiThread(() -> listAdapter.notifyDataSetChanged());
+						
+						StringBuilder labelStringBuilder = new StringBuilder();
+						for (Terminus label : object.terminus)
+						{
+							if (!labelStringBuilder.toString().equals(""))
+								labelStringBuilder.append("\n");
+							labelStringBuilder.append(String.format("%s: %s", label.label, label.direction));
+						}
+						runOnUiThread(() -> labelTextView.setText(labelStringBuilder.toString()));
+						
 					}
 				});
 	}

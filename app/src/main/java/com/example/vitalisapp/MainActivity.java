@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -30,6 +31,9 @@ public class MainActivity extends AppCompatActivity
 	private final List<PresetItem> presets = new ArrayList<>();
 	private final String PRESET_FILE_NAME = "timetable_presets.json";
 	public LayoutInflater inflater;
+	
+	private boolean isLoading = false;
+	private ProgressBar progressBar;
 
 	private CustomAdapter<PresetItem> presetListAdapter;
 
@@ -49,59 +53,61 @@ public class MainActivity extends AppCompatActivity
 
 		inflater = LayoutInflater.from(this);
 		ListView presetListView = findViewById(R.id.preset_list);
+		progressBar = findViewById(R.id.progressBar);
 
 		//Get Api token
 		apiHelper.GetToken(null);
 
 		//Initiate Activity Result
 		activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-				result ->
+			result ->
+			{
+				if (result.getResultCode() == RESULT_OK && result.getData() != null)
 				{
-					if (result.getResultCode() == RESULT_OK && result.getData() != null)
-					{
-						Bundle bundle = result.getData().getExtras();
-						GetStationNextPassage((Station) bundle.get("Station"));
-					}
-					else
-					{
-						System.out.println("Error to receive Result");
-					}
-				});
+					//Config and Show Window
+					Bundle bundle = result.getData().getExtras();
+					Station station = (Station) bundle.get("Station");
+					Helper.saveInHistory(this, station);
+					Helper.moreInfoStation(this, station);
+				}
+				else
+					System.out.println("Error to receive Result");
+			});
 
 		activityEditPreset = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-				result ->
+			result ->
+			{
+				if (result.getResultCode() == RESULT_OK && result.getData() != null)
 				{
-					if (result.getResultCode() == RESULT_OK && result.getData() != null)
+					Bundle bundle = result.getData().getExtras();
+
+					PresetItem preset = (PresetItem) bundle.get("Preset");
+					int index = bundle.getInt("Index");
+					int newPos = bundle.getInt("NewPos");
+
+
+
+					System.out.printf("Index %d, preset %b\n", index, preset == null);
+
+					if (preset == null)
+						presets.remove(index);
+					else
+						presets.set(index, preset);
+
+					//Move
+					if (preset != null)
 					{
-						Bundle bundle = result.getData().getExtras();
-
-						PresetItem preset = (PresetItem) bundle.get("Preset");
-						int index = bundle.getInt("Index");
-						int newPos = bundle.getInt("NewPos");
-
-
-
-						System.out.printf("Index %d, preset %b\n", index, preset == null);
-
-						if (preset == null)
-							presets.remove(index);
-						else
-							presets.set(index, preset);
-
-						//Move
-						if (preset != null)
-						{
-							PresetItem savePreset = presets.get(index);
-							presets.remove(index);
-							presets.add(newPos, savePreset);
-						}
-						
-
-						SavePreset();
-						runOnUiThread(() -> presetListAdapter.notifyDataSetChanged());
-						UpdateWidgets();
+						PresetItem savePreset = presets.get(index);
+						presets.remove(index);
+						presets.add(newPos, savePreset);
 					}
-				});
+					
+
+					SavePreset();
+					runOnUiThread(() -> presetListAdapter.notifyDataSetChanged());
+					UpdateWidgets();
+				}
+			});
 
 		if (presetListView == null)
 		{
@@ -196,6 +202,12 @@ public class MainActivity extends AppCompatActivity
 		super.onStop();
 	}
 	
+	private void setLoading(boolean value)
+	{
+		isLoading = value;
+		progressBar.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
+	}
+	
 	private void UpdateWidgets()
 	{
 		AppWidgetManager widgetManager = AppWidgetManager.getInstance(this);
@@ -209,12 +221,6 @@ public class MainActivity extends AppCompatActivity
 	private void SavePreset()
 	{
 		Helper.savePrefJson(presets.toArray(),"presets", this);
-//		String presetJson = new Gson().toJson(presets.toArray());
-//
-//		SharedPreferences prefs = getSharedPreferences(Helper.PREF_NAME, Context.MODE_PRIVATE);
-//		SharedPreferences.Editor editor = prefs.edit();
-//		editor.putString("presets", presetJson);
-//		editor.apply();
 		
 		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
 		appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(new ComponentName(this, FavoriteWidget.class)), R.id.list_view);
@@ -224,9 +230,6 @@ public class MainActivity extends AppCompatActivity
 
 	private void LoadPresets()
 	{
-//		SharedPreferences prefs = getSharedPreferences(Helper.PREF_NAME, Context.MODE_PRIVATE);
-//		String presetJson = prefs.getString("presets", null);
-		
 		PresetItem[] dataPresets = Helper.loadPrefJson("presets", PresetItem[].class, this);
 		
 		if (dataPresets == null)
@@ -241,19 +244,14 @@ public class MainActivity extends AppCompatActivity
 	public void otherTimetable()
 	{
 		Intent intent = new Intent(this, ActivityFindStation.class);
-
-		apiHelper.GetAllStations(object ->
+		String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, this);
+		if (stationsHistoryArray != null)
 		{
-			String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, this);
-			if (stationsHistoryArray != null)
-			{
-				intent.putExtra("History", stationsHistoryArray);
-				System.out.println(stationsHistoryArray.length);
-			}
-			
-			intent.putExtra("Stations", object);
-			activityResultLauncher.launch(intent);
-		});
+			intent.putExtra("History", stationsHistoryArray);
+			System.out.println(stationsHistoryArray.length);
+		}
+		intent.putExtra("Token", apiHelper.token);;
+		activityResultLauncher.launch(intent);
 	}
 
 	public void GoToTimetable(PresetItem timetablePreset)
@@ -262,27 +260,12 @@ public class MainActivity extends AppCompatActivity
 		intent.putExtra("Token", apiHelper.token);
 		intent.putExtra("TimetablePreset", timetablePreset);
 		startActivity(intent);
-
 	}
-
+	
+	
+	
 	private void GetStationNextPassage(Station station)
 	{
-		//Save To history
-		String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, this);
-		List<String> stationHistoryList = new ArrayList<>();
-		stationHistoryList.add(station.name);
-		
-		if (stationsHistoryArray != null)
-		{
-			for (String stationName : stationsHistoryArray)
-			{
-				if (!stationName.equals(station.name))
-					stationHistoryList.add(stationName);
-			}
-		}
-		
-		Helper.savePrefJson(stationHistoryList.toArray(), "station_history", this);
-		
 		System.out.printf("Station Chose: %s\n", station.name);
 		Intent intent = new Intent(this, NextPassageActivity.class);
 		intent.putExtra("Token", apiHelper.token);
@@ -298,20 +281,14 @@ public class MainActivity extends AppCompatActivity
 		intent.putExtra("Index", i);
 		intent.putExtra("Preset", presets.get(i));
 		intent.putExtra("PresetsCount", presets.size());
-		intent.putExtra("Token", apiHelper.token);
-		apiHelper.GetAllStations(object ->
-		{
-			intent.putExtra("Stations", object);
-			activityEditPreset.launch(intent);
-		});
+		activityEditPreset.launch(intent);
 	}
 
 
-	private void TestInteractor()
+	private void TestApiHelper()
 	{
 		apiHelper.GetToken(token -> {
 			System.out.println("Request token Success");
-			//output.setText(token);
 
 			apiHelper.GetAllStations(object ->
 			{
@@ -320,39 +297,29 @@ public class MainActivity extends AppCompatActivity
 					System.out.println(station.name);
 				}
 				Station station = object[869];
-				apiHelper.GetStationLine(station, new ApiHelper.CallbackObject<Line[]>() {
-					@Override
-					public void onResponse(Line[] object) {
-						for(Line line : object)
-						{
-							System.out.printf("%s  %s  %s\n", line.name, line.line_id, line.color);
-						}
-						apiHelper.GetStationLineId(station, object[0], new ApiHelper.CallbackObject<StationLineInfo>() {
-							@Override
-							public void onResponse(StationLineInfo object) {
-								System.out.println(object.stop_id);
-
-								apiHelper.GetNextPassage(station, null, new ApiHelper.CallbackObject<NextPassages>() {
-									@Override
-									public void onResponse(NextPassages object) {
-										for (Passage nextPassages: object.realtime)
-										{
-											System.out.printf("%s %s\n", nextPassages.destinationName, nextPassages.expectedDepartureTime);
-										}
-
-										ListView presetListView = (ListView) findViewById(R.id.preset_list);
-										System.out.println(presetListView);
-									}
-								});
-
-							}
-						});
-
+				apiHelper.GetStationLine(station, object1 ->
+				{
+					for(Line line : object1)
+					{
+						System.out.printf("%s  %s  %s\n", line.name, line.line_id, line.color);
 					}
+					apiHelper.GetStationLineId(station, object1[0], object112 ->
+					{
+						System.out.println(object112.stop_id);
+
+						apiHelper.GetNextPassage(station, null, object11 ->
+						{
+							for (Passage nextPassages: object11.realtime)
+							{
+								System.out.printf("%s %s\n", nextPassages.destinationName, nextPassages.expectedDepartureTime);
+							}
+
+							ListView presetListView = (ListView) findViewById(R.id.preset_list);
+							System.out.println(presetListView);
+						});
+					});
 				});
 			});
-
-
 		});
 	}
 }

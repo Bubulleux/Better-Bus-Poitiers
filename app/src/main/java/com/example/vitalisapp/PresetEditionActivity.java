@@ -41,7 +41,6 @@ public class PresetEditionActivity extends AppCompatActivity
 	private List<Line> lineInGridView = new ArrayList<>();
 
 	private PresetItem preset;
-	private Station[] stations;
 	private ApiHelper apiHelper;
 	private int index;
 	private int newPosition;
@@ -79,26 +78,24 @@ public class PresetEditionActivity extends AppCompatActivity
 		saveBtn = findViewById(R.id.save_btn);
 		deleteBtn = findViewById(R.id.delete_btn);
 
-
-
-
+		
+		
 		favoriteCheckBox.setOnCheckedChangeListener((compoundButton, b) -> preset.isFavorite = b);
 
 		//Get Extra
 		Intent intent = getIntent();
 		preset = (PresetItem) intent.getSerializableExtra("Preset");
-		stations = (Station[]) intent.getSerializableExtra("Stations");
 		index = (Integer) intent.getSerializableExtra("Index");
 		newPosition = index;
 		presetsCount = (Integer) intent.getSerializableExtra("PresetsCount");
+		
 		apiHelper = new ApiHelper(this);
-		apiHelper.token = (String) intent.getSerializableExtra("Token");
-		apiHelper.stations = stations;
 
 
 
 		InitActivityLauncher();
 		InitBtn();
+		
 		//Init Grid Line Adapter
 		gridViewLineAdapter = new CustomAdapter<>(this, lineInGridView, new CustomAdapter.IUpdateAdapter<Line>() {
 			@Override
@@ -115,18 +112,16 @@ public class PresetEditionActivity extends AppCompatActivity
 
 		if (preset != null && !preset.stationName.equals(""))
 			RefreshLine(preset.stationName);
-
+		
 		RefreshInfo();
 	}
-
-
-
+	
+	
 	public void InitBtn()
 	{
 		changeStationBtn.setOnClickListener(view ->
 		{
 			Intent intent = new Intent(view.getContext(), ActivityFindStation.class);
-			intent.putExtra("Stations", stations);
 			activityResultLauncherFindStation.launch(intent);
 		});
 
@@ -175,8 +170,12 @@ public class PresetEditionActivity extends AppCompatActivity
 
 		saveBtn.setOnClickListener((View view) -> SaveBtn());
 		deleteBtn.setOnClickListener((View view) -> DeleteBtn());
-
-
+	}
+	
+	@Override
+	public void onBackPressed()
+	{
+		SaveBtn();
 	}
 
 	public void DeleteBtn()
@@ -226,6 +225,7 @@ public class PresetEditionActivity extends AppCompatActivity
 					{
 						Station station = (Station) result.getData().getExtras().get("Station");
 						preset.stationName = station.name;
+						preset.directions = new DirectionPreset[0];
 						RefreshLine(station.name);
 						runOnUiThread(() -> RefreshInfo());
 					}

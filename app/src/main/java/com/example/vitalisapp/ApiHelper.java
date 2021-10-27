@@ -6,6 +6,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.widget.ProgressBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.*;
@@ -23,9 +24,10 @@ import com.google.gson.Gson;
 public class ApiHelper implements Serializable
 {
 	private final OkHttpClient client = new OkHttpClient();
-	public String token = null;
-	Station[] stations;
+	public static String token = null;
+	public static Station[] stations;
 	private Context context;
+	
 	
 	public ApiHelper(Context context)
 	{
@@ -86,7 +88,9 @@ public class ApiHelper implements Serializable
 		}
 		return  is_connected;
 	}
-
+	
+	
+	
 
 	public void GetAllStations(CallbackObject<Station[]> callback)
 	{

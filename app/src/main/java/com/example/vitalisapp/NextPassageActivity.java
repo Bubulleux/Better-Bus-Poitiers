@@ -1,17 +1,15 @@
 package com.example.vitalisapp;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
-import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,6 +23,8 @@ public class NextPassageActivity extends AppCompatActivity {
 	private FrameLayout listFrameLayout;
 	private Button refreshBtn;
 	private Button seeAllBtn;
+	
+	private ActivityResultLauncher<Intent> changeStationResultLauncher;
 
 	private CustomAdapter<Passage> listAdapter;
 
@@ -34,7 +34,8 @@ public class NextPassageActivity extends AppCompatActivity {
 	private Station station;
 	private PresetItem preset;
 	private Line[] lines;
-	private boolean load;
+	private boolean lineIsLoad;
+	private boolean isLoading;
 	
 	/* Intent Extra:
 		"Token": api Token (String)
@@ -79,25 +80,19 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		setLoading(false);
 		
-		((Button)findViewById(R.id.go_back_btn)).setOnClickListener((View view) ->
+		findViewById(R.id.go_back_btn).setOnClickListener((View view) ->
 		{
 			finish();
 		});
 		
 		if (preset == null)
-		{
-			((ViewGroup) seeAllBtn.getParent()).removeView(seeAllBtn);
-		}
+			removeSeeAllBtn();
 		else
 		{
 			seeAllBtn.setOnClickListener((View view) ->
 			{
-				if (preset == null)
-					return;
+				removeSeeAllBtn();
 				preset = null;
-				
-				((ViewGroup) view.getParent()).removeView(view);
-
 				Refresh();
 			});
 		}
@@ -120,16 +115,53 @@ public class NextPassageActivity extends AppCompatActivity {
 			finish();
 		});
 		
+		findViewById(R.id.station_name).setOnLongClickListener((View view ) -> {
+			Helper.moreInfoStation(this, station);
+			return true;
+		});
+		
+		//Station Name View
+		
+		stationTextView.setOnLongClickListener((View view ) -> {
+			Helper.moreInfoStation(this, station);
+			return true;
+		});
+		
+		stationTextView.setOnClickListener((View view) ->
+		{
+			if (isLoading)
+				return;
+			Intent intent = new Intent(this, ActivityFindStation.class);
+			intent.putExtra("Token", apiHelper.token);
+			changeStationResultLauncher.launch(intent);
+		});
+		
+		changeStationResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
+		{
+			station = (Station) result.getData().getExtras().get("Station");
+			stationTextView.setText(station.name);
+			removeSeeAllBtn();
+			preset = null;
+			InitClient();
+		});
+		
 		stationTextView.setText(station.name);
 
 		InitAdapter();
 		InitClient();
 	}
 	
-
+	private void removeSeeAllBtn()
+	{
+		if (seeAllBtn.getParent() == null)
+			return;
+		
+		((ViewGroup) seeAllBtn.getParent()).removeView(seeAllBtn);
+	}
 	
 	private void setLoading(Boolean value)
 	{
+		isLoading = value;
 		progressBar.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
 		runOnUiThread(() -> emptyListTxt.setVisibility(value ? View.INVISIBLE : View.VISIBLE));
 	}
@@ -137,6 +169,7 @@ public class NextPassageActivity extends AppCompatActivity {
 	
 	private void InitClient()
 	{
+		lineIsLoad = false;
 		ApiHelper.CallbackToken callbackToken = (String token) ->
 		{
 			apiHelper.GetStationLine(station, object ->
@@ -145,7 +178,7 @@ public class NextPassageActivity extends AppCompatActivity {
 				
 				apiHelper.GetStationLineId(station, lines[0], object1 ->
 				{
-					load = true;
+					lineIsLoad = true;
 					Refresh();
 				});
 			});
@@ -159,16 +192,12 @@ public class NextPassageActivity extends AppCompatActivity {
 		}
 		else
 			callbackToken.onResponse(apiHelper.token);
-		
-		
 	}
 
 	public void Refresh()
 	{
-		if (!load)
-		{
+		if (!lineIsLoad)
 			return;
-		}
 		
 		passages.clear();
 		runOnUiThread(() -> listAdapter.notifyDataSetChanged());
@@ -217,7 +246,6 @@ public class NextPassageActivity extends AppCompatActivity {
 			@Override
 			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<Passage> list)
 			{
-
 				Passage item = list.get(i);
 				RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.next_passage_item, null);
 

@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -23,6 +25,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	private TextView labelTextView;
 	private ProgressBar progressBar;
 	private TextView emptyListTextView;
+	private TextView stationNameView;
 	
 	private Station station;
 	private List<Line> lines = new ArrayList<>();
@@ -37,6 +40,10 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	private List<FixPassage> fixPassagesList = new ArrayList<>();
 	
 	private ArrayAdapter<Line> lineArrayAdapter;
+	
+	private ActivityResultLauncher<Intent> changeStationResultLauncher;
+	
+	private boolean isLoading;
 	
 	/* Intent Extra:
 		"Token": api Token (String)
@@ -57,7 +64,6 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		station = (Station) getIntent().getSerializableExtra("Station");
 		apiHelper.token = getIntent().getStringExtra("Token");
 		
-		
 		//Get Views
 		dateInput = findViewById(R.id.date_input);
 		lineInput = findViewById(R.id.line_spinner);
@@ -66,14 +72,19 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		labelTextView = findViewById(R.id.label_text_view);
 		progressBar = findViewById(R.id.progressBar);
 		emptyListTextView = findViewById(R.id.timetable_list_empty);
+		stationNameView = findViewById(R.id.station_name);
 		
 		//Init Views
-		((TextView) findViewById(R.id.station_name)).setText(station.name);
+		stationNameView.setText(station.name);
 		
 		Init_View();
 		
 		RefreshDate();
-		GetLines();
+		
+		if (apiHelper.token == null)
+			apiHelper.GetToken((String token) -> GetLines());
+		else
+			GetLines();
 		
 	}
 	
@@ -175,6 +186,8 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			@Override
 			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<FixPassage> list)
 			{
+				if (list.size() == 0)
+					return view;
 				FixPassage item = list.get(i);
 				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fixe_timetable_item, null);
 				((TextView) layout.findViewById(R.id.txt_hour)).setText(String.format("%02d", item.hour));
@@ -192,9 +205,9 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		});
 		timeTableList.setAdapter(listAdapter);
 		
-		((Button)findViewById(R.id.go_back_btn)).setOnClickListener((View view) -> finish());
+		findViewById(R.id.go_back_btn).setOnClickListener((View view) -> finish());
 		
-		((Button)findViewById(R.id.next_passage_btn)).setOnClickListener((View view) ->
+		findViewById(R.id.next_passage_btn).setOnClickListener((View view) ->
 		{
 			Intent intent = new Intent(this, NextPassageActivity.class);
 			intent.putExtra("Token", apiHelper.token);
@@ -203,11 +216,33 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			startActivity(intent);
 			finish();
 		});
+		
+		stationNameView.setOnLongClickListener((View view ) -> {
+			Helper.moreInfoStation(this, station);
+			return true;
+		});
+		
+		stationNameView.setOnClickListener((View view) ->
+		{
+			if (isLoading)
+				return;
+			Intent intent = new Intent(this, ActivityFindStation.class);
+			changeStationResultLauncher.launch(intent);
+		});
+		
+		//ChangeStation
+		changeStationResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
+		{
+			station = (Station) result.getData().getExtras().get("Station");
+			stationNameView.setText(station.name);
+			GetLines();
+		});
 	}
 	
 	public void GetLines()
 	{
 		setLoading(true);
+		lineInput.setSelection(0);
 		apiHelper.GetStationLine(station, (Line[] linesCallBack) ->
 		{
 			setLoading(false);
@@ -216,8 +251,12 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			lines.addAll(Arrays.asList(linesCallBack));
 //			ArrayAdapter<Line> lineArrayAdapter = new ArrayAdapter<Line>(this, R.layout.support_simple_spinner_dropdown_item, lines);
 //			lineArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
+			fixPassagesList.clear();
 			runOnUiThread(() ->
 			{
+				destinationInput.setAdapter(null);
+				labelTextView.setText("");
+				listAdapter.notifyDataSetChanged();
 				lineArrayAdapter.notifyDataSetChanged();
 				emptyListTextView.setText(getString(R.string.select_line));
 			});
@@ -226,6 +265,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	
 	public void setLoading(boolean isLoading)
 	{
+		this.isLoading = isLoading;
 		int visible_if_loading = isLoading ? View.VISIBLE : View.INVISIBLE;
 		int invisible_if_loading = isLoading ? View.INVISIBLE : View.VISIBLE;
 		runOnUiThread(() ->

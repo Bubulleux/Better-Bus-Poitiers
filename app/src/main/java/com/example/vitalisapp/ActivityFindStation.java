@@ -31,23 +31,8 @@ public class ActivityFindStation extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_find_station);
-		stations = (Station[]) getIntent().getSerializableExtra("Stations");
-		String[] historyName = (String[]) getIntent().getSerializableExtra("History");
-		if (historyName != null)
-		{
-			System.out.printf("Station in historyName %d \n", historyName.length);
-			for (String historyStation : historyName)
-			{
-				for (Station station : stations)
-				{
-					if (station.name.equals(historyStation))
-						history.add(station);
-				}
-			}
-		}
-
-		System.out.printf("Station Count: %d\n", stations.length);
-
+		
+		
 		stationListView = findViewById(R.id.station_list);
 		stationSearchInput = findViewById(R.id.station_search_input);
 
@@ -76,16 +61,44 @@ public class ActivityFindStation extends AppCompatActivity {
 		});
 
 		stationListView.setAdapter(adapter);
-		UpdateList("");
+		
+		
+		ApiHelper apiHelper = new ApiHelper(this);
+		apiHelper.GetAllStations(object ->
+		{
+			stations = object;
+			UpdateHistory();
+			runOnUiThread(() ->
+			{
+				findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+				UpdateList("");
+			});
+		});
+	}
+	
+	public void UpdateHistory()
+	{
+		String[] historyName = (String[]) getIntent().getSerializableExtra("History");
+		if (historyName == null)
+			return;
+		
+		System.out.printf("Station in historyName %d \n", historyName.length);
+		for (String historyStation : historyName)
+		{
+			for (Station station : stations)
+			{
+				if (station.name.equals(historyStation))
+					history.add(station);
+			}
+		}
 	}
 	
 	public void UpdateList(CharSequence charSequence)
 	{
 		stationsFind.clear();
-		if (charSequence.length() == 0)
+		if (charSequence.length() == 0 && history.size() != 0)
 		{
 			stationsFind.addAll(history);
-			System.out.printf("Station in history %d \n", history.size());
 		}
 		else
 		{
@@ -98,7 +111,6 @@ public class ActivityFindStation extends AppCompatActivity {
 			}
 		}
 		
-		System.out.printf("Size Station Find: %d\n", stationsFind.size());
 		adapter.list = stationsFind;
 		adapter.notifyDataSetChanged();
 	}
@@ -110,6 +122,4 @@ public class ActivityFindStation extends AppCompatActivity {
 		setResult(RESULT_OK, intent);
 		finish();
 	}
-
-
 }

@@ -13,9 +13,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.gson.Gson;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.zip.Inflater;
 
 public class Helper
@@ -90,14 +94,34 @@ public class Helper
 		
 		((Button) alertDialogView.findViewById(R.id.see_in_map_btn)).setOnClickListener((View view) ->
 		{
-			Uri uri = Uri.parse(String.format("https://www.google.fr/maps/dir//%f,%f/", station.lat, station.lng));
+			DecimalFormat df = new DecimalFormat("###.######");
+			Uri uri = Uri.parse(String.format(String.format(Locale.US, "https://www.google.fr/maps/dir//%f,%f/", station.lat, station.lng)));
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
+			context.startActivity(browserIntent);
 			
-			Intent intent = new Intent(context, ActivityFixTimeTable.class);
-			intent.putExtra("Station", station);
-			context.startActivity(intent);
 			alertDialog.cancel();
 		});
 		
 		((Button) alertDialogView.findViewById(R.id.close_btn)).setOnClickListener((View view) -> alertDialog.cancel());
+		
+		alertDialog.show();
+	}
+	
+	public static void saveInHistory(Context context, Station station)
+	{
+		String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, context);
+		List<String> stationHistoryList = new ArrayList<>();
+		stationHistoryList.add(station.name);
+		
+		if (stationsHistoryArray != null)
+		{
+			for (String stationName : stationsHistoryArray)
+			{
+				if (!stationName.equals(station.name))
+					stationHistoryList.add(stationName);
+			}
+		}
+		
+		Helper.savePrefJson(stationHistoryList.toArray(), "station_history", context);
 	}
 }

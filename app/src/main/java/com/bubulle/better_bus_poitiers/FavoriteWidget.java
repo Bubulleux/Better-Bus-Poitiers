@@ -1,23 +1,12 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
-import android.view.LayoutInflater;
-import android.widget.LinearLayout;
 import android.widget.RemoteViews;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.google.gson.Gson;
-
-import java.util.List;
-import java.util.Random;
-import java.util.zip.Inflater;
 
 
 public class FavoriteWidget extends AppWidgetProvider

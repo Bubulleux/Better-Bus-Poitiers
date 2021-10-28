@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">Better Vitalis</string>
+	<string name="app_name">Better Bus Poitiers</string>
 	<string name="new_preset_btn">Nouveau Préréglage</string>
 	<string name="find_other_station">Trouver une Station</string>
 	<string name="search_hint">Rechercher...</string>
@@ -51,5 +51,5 @@
 	<string name="date_hint">Date:</string>
 	<string name="direction_hint">Direction:</string>
 	<string name="go_to_map">Voire sur la carte</string>
-	<string name="close">fermer</string>
+	<string name="close">Fermer</string>
 </resources>

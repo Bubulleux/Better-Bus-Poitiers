@@ -1,4 +1,4 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;

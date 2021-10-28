@@ -1,24 +1,19 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Debug;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,6 +99,9 @@ public class PresetEditionActivity extends AppCompatActivity
 				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
 				((TextView)layout.findViewById(R.id.line_id)).setText(list.get(i).line_id);
 				layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(list.get(i).color));
+				
+				int color = Helper.getTextContrast(list.get(i).color);
+				((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
 
 				return layout;
 			}

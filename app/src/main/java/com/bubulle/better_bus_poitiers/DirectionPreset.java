@@ -1,6 +1,4 @@
-package com.example.vitalisapp;
-
-import android.os.Parcelable;
+package com.bubulle.better_bus_poitiers;
 
 import java.io.Serializable;
 

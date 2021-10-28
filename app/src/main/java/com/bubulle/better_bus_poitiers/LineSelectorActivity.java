@@ -1,8 +1,7 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import android.os.Bundle;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class LineSelectorActivity extends AppCompatActivity
@@ -76,6 +74,10 @@ public class LineSelectorActivity extends AppCompatActivity
 				ConstraintLayout layout = (ConstraintLayout) inflater.inflate(R.layout.line_selection_item, null);
 				((TextView)layout.findViewById(R.id.line_id)).setText(item.line_id);
 				layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(item.line_color));
+				
+				int color = Helper.getTextContrast(item.line_color);
+				((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
+				
 				((TextView)layout.findViewById(R.id.direction_txt)).setText(item.direction);
 
 				CheckBox checkBox = (CheckBox) layout.findViewById(R.id.line_selected);

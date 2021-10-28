@@ -1,4 +1,4 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -138,11 +138,14 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		changeStationResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
 		{
-			station = (Station) result.getData().getExtras().get("Station");
-			stationTextView.setText(station.name);
-			removeSeeAllBtn();
-			preset = null;
-			InitClient();
+			if (result.getResultCode() == RESULT_OK && result.getData() != null)
+			{
+				station = (Station) result.getData().getExtras().get("Station");
+				stationTextView.setText(station.name);
+				removeSeeAllBtn();
+				preset = null;
+				InitClient();
+			}
 		});
 		
 		stationTextView.setText(station.name);
@@ -252,6 +255,9 @@ public class NextPassageActivity extends AppCompatActivity {
 				((TextView)layout.findViewById(R.id.direction_txt)).setText(item.destinationName);
 				((TextView)layout.findViewById(R.id.line_id)).setText(item.line.line_id);
 				((TextView)layout.findViewById(R.id.line_id)).setBackgroundColor(Color.parseColor(item.line.color));
+				
+				int color = Helper.getTextContrast(item.line.color);
+				((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
 				System.out.println(item.line.color);
 
 				Date time = Helper.getDate(item.expectedDepartureTime);

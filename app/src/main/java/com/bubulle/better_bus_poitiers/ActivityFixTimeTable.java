@@ -1,4 +1,4 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -233,16 +233,19 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		//ChangeStation
 		changeStationResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
 		{
-			station = (Station) result.getData().getExtras().get("Station");
-			stationNameView.setText(station.name);
-			GetLines();
+			if (result.getResultCode() == RESULT_OK && result.getData() != null)
+			{
+				station = (Station) result.getData().getExtras().get("Station");
+				stationNameView.setText(station.name);
+				GetLines();
+			}
 		});
 	}
 	
 	public void GetLines()
 	{
 		setLoading(true);
-		lineInput.setSelection(0);
+		runOnUiThread(() -> lineInput.setSelection(0));
 		apiHelper.GetStationLine(station, (Line[] linesCallBack) ->
 		{
 			setLoading(false);

@@ -6,7 +6,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:padding="@dimen/layout_padding"
-		tools:context=".MainActivity">
+		tools:context="com.bubulle.better_bus_poitiers.MainActivity">
 
 	<Button
 			android:layout_width="match_parent"

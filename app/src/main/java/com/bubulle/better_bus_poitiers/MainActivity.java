@@ -1,22 +1,18 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +42,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 		is_running = true;
 		
+		Helper.getTextContrast(Color.parseColor("#FFFFFF"));
+		Helper.getTextContrast(Color.parseColor("#000000"));
+		Helper.getTextContrast(Color.parseColor("#AACCEE"));
+		Helper.getTextContrast(Color.parseColor("#ABCDEF"));
+		Helper.getTextContrast(Color.parseColor("#123456"));
 		
         setContentView(R.layout.activity_main);
 		apiHelper = new ApiHelper(this);
@@ -175,6 +176,9 @@ public class MainActivity extends AppCompatActivity
 
 					textView.setText(direction.line_id);
 					textView.setBackgroundColor(Color.parseColor(direction.line_color));
+					
+					int color = Helper.getTextContrast(direction.line_color);
+					textView.setTextColor(color);
 
 					lineAlreadyAdded.add(direction.line_id);
 					lineGrid.addView(layout);

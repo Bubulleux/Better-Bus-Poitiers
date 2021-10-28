@@ -1,4 +1,4 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -6,7 +6,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.widget.ProgressBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.*;

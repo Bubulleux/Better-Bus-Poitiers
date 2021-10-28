@@ -7,7 +7,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:id="@+id/constraint_layout"
-		tools:context=".NextPassageActivity">
+		tools:context="com.bubulle.better_bus_poitiers.NextPassageActivity">
 	
 	<TextView
 			android:layout_width="match_parent"
@@ -16,6 +16,9 @@
 			android:text="Station Name"
 			android:textSize="40sp"
 			android:gravity="center"
+			android:clickable="true"
+			android:background="?attr/selectableItemBackground"
+			
 			app:layout_constraintTop_toTopOf="parent"/>
 	
 	<FrameLayout

@@ -1,4 +1,4 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;

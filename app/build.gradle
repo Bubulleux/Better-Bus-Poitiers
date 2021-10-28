@@ -14,7 +14,7 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        applicationId "com.example.vitalisapp"
+        applicationId "com.bubulle.better_bus_poitiers"
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1

@@ -1,8 +1,9 @@
-package com.example.vitalisapp;
+package com.bubulle.better_bus_poitiers;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +11,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import com.google.gson.Gson;
 
 import java.text.DecimalFormat;
@@ -20,12 +20,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.zip.Inflater;
 
 public class Helper
 {
 	
-	public static final String PREF_NAME = "com.example.BetterVitalis_Pref";
+	public static final String PREF_NAME = "com.bubulle.better_bus_poitiers.pref";
 	
 	public static Date getDate(String rawDate)
 	{
@@ -105,6 +104,20 @@ public class Helper
 		((Button) alertDialogView.findViewById(R.id.close_btn)).setOnClickListener((View view) -> alertDialog.cancel());
 		
 		alertDialog.show();
+	}
+	
+	public static int getTextContrast(String color)
+	{
+		return getTextContrast(Color.parseColor(color));
+	}
+	
+	public static int getTextContrast(int color)
+	{
+		int red = Color.red(color);
+		int green = Color.green(color);
+		int blue = Color.blue(color);
+		float mean = (red + green + blue) / 3f;
+		return  Color.parseColor(mean > (255 / 2f) ? "#000000" : "#FFFFFF");
 	}
 	
 	public static void saveInHistory(Context context, Station station)

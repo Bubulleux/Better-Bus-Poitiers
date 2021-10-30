@@ -46,7 +46,6 @@ public class NextPassageActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-		Toast.makeText(this, "Next Passage Loaded", Toast.LENGTH_SHORT).show();
 		
 		
 		setContentView(R.layout.activity_next_passage);

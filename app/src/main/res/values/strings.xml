@@ -18,7 +18,7 @@
 	<string name="go_back">Retour</string>
 	<string name="close">Fermer</string>
 	<string name="go_to_map">Voir sur la carte</string>
-	<string name="fix_timetable">Horaire Fix</string>
+	<string name="fix_timetable">Fiche Horaire</string>
 	<string name="next_passage_txt">Prochain Passage</string>
 	<string name="yes">Oui</string>
 	<string name="no">Non</string>

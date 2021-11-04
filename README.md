@@ -1,17 +1,17 @@
-#Better Bus Poitiers
+# Better Bus Poitiers
 
-###[Download][Download]
+### [Download][Download]
 
-##Presentation
+## Presentation
 Better Bus Poitiers is an application for replace Vitalis. It fulfills all the important features of Vitalis but better.
 
-##Features
+## Features
 * Gives the next Passage of a bus stop
 * Gives the time of passage of the buses on a predetermined date
 * Can show you where a bus stop is
 
 
-##Download
+## Download
 
 * Download the .apk application [HERE][Download]
 * All you have to do is open it and authorise the installation

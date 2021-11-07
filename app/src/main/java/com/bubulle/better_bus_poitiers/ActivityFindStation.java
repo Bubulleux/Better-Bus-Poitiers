@@ -61,16 +61,27 @@ public class ActivityFindStation extends AppCompatActivity {
 		
 		
 		ApiHelper apiHelper = new ApiHelper(this);
-		apiHelper.GetAllStations(object ->
+		
+		
+		ApiHelper.CallbackToken tokenCallback = (String token) ->
 		{
-			stations = object;
-			UpdateHistory();
-			runOnUiThread(() ->
+			apiHelper.GetAllStations(object ->
 			{
-				findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
-				UpdateList("");
+				stations = object;
+				UpdateHistory();
+				runOnUiThread(() ->
+				{
+					findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+					UpdateList("");
+				});
 			});
-		});
+		};
+		
+		if (ApiHelper.token == null)
+			apiHelper.GetToken(tokenCallback);
+		else
+			tokenCallback.onResponse(ApiHelper.token);
+		
 	}
 	
 	public void UpdateHistory()

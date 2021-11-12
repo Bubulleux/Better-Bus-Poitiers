@@ -12,8 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import com.google.gson.Gson;
-
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,7 +73,7 @@ public class Helper
 		AlertDialog alertDialog = alertDialogBuilder.create();
 		
 		((TextView) alertDialogView.findViewById(R.id.station_name)).setText(station.name);
-		((Button) alertDialogView.findViewById(R.id.next_passage_btn)).setOnClickListener((View view) ->
+		alertDialogView.findViewById(R.id.next_passage_btn).setOnClickListener((View view) ->
 		{
 			Intent intent = new Intent(context, NextPassageActivity.class);
 			intent.putExtra("Station", station);
@@ -83,7 +81,7 @@ public class Helper
 			alertDialog.cancel();
 		});
 		
-		((Button) alertDialogView.findViewById(R.id.fix_timetable_btn)).setOnClickListener((View view) ->
+		alertDialogView.findViewById(R.id.fix_timetable_btn).setOnClickListener((View view) ->
 		{
 			Intent intent = new Intent(context, ActivityFixTimeTable.class);
 			intent.putExtra("Station", station);
@@ -91,17 +89,16 @@ public class Helper
 			alertDialog.cancel();
 		});
 		
-		((Button) alertDialogView.findViewById(R.id.see_in_map_btn)).setOnClickListener((View view) ->
+		 alertDialogView.findViewById(R.id.see_in_map_btn).setOnClickListener((View view) ->
 		{
-			DecimalFormat df = new DecimalFormat("###.######");
-			Uri uri = Uri.parse(String.format(String.format(Locale.US, "https://www.google.fr/maps/dir//%f,%f/", station.lat, station.lng)));
+			Uri uri = Uri.parse(String.format(Locale.US, "https://www.google.fr/maps/dir//%f,%f/", station.lat, station.lng));
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
 			context.startActivity(browserIntent);
 			
 			alertDialog.cancel();
 		});
 		
-		((Button) alertDialogView.findViewById(R.id.close_btn)).setOnClickListener((View view) -> alertDialog.cancel());
+		alertDialogView.findViewById(R.id.close_btn).setOnClickListener((View view) -> alertDialog.cancel());
 		
 		alertDialog.show();
 	}

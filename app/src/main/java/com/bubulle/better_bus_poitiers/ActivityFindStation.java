@@ -48,7 +48,7 @@ public class ActivityFindStation extends AppCompatActivity {
 			public void afterTextChanged(Editable editable) { }
 		});
 
-		adapter = new CustomAdapter<Station>(this, stationsFind, (i, view, viewGroup, inflater, list) ->
+		adapter = new CustomAdapter<>(this, stationsFind, (i, view, viewGroup, inflater, list) ->
 		{
 			Station item = list.get(i);
 			LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.station_item, null);
@@ -64,18 +64,16 @@ public class ActivityFindStation extends AppCompatActivity {
 		
 		
 		ApiHelper.CallbackToken tokenCallback = (String token) ->
-		{
-			apiHelper.GetAllStations(object ->
-			{
-				stations = object;
-				UpdateHistory();
-				runOnUiThread(() ->
+				apiHelper.GetAllStations(object ->
 				{
-					findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
-					UpdateList("");
+					stations = object;
+					UpdateHistory();
+					runOnUiThread(() ->
+					{
+						findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+						UpdateList("");
+					});
 				});
-			});
-		};
 		
 		if (ApiHelper.token == null)
 			apiHelper.GetToken(tokenCallback);

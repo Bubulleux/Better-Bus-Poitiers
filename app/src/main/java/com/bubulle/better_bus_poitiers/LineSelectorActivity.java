@@ -2,15 +2,14 @@ package com.bubulle.better_bus_poitiers;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class LineSelectorActivity extends AppCompatActivity
@@ -35,9 +34,9 @@ public class LineSelectorActivity extends AppCompatActivity
 		setContentView(R.layout.activity_line_selector);
 
 		//Get View
-		listView = (ListView) findViewById(R.id.line_selection_view);
+		listView =  findViewById(R.id.line_selection_view);
 
-		finishBtn = (Button) findViewById(R.id.finish_btn);
+		finishBtn =  findViewById(R.id.finish_btn);
 		finishBtn.setOnClickListener((View view) -> Done());
 
 		selectAllBtn = findViewById(R.id.select_all_btn);
@@ -66,58 +65,50 @@ public class LineSelectorActivity extends AppCompatActivity
 
 		InitList();
 
-		listViewAdapter = new CustomAdapter<DirectionPreset>(this, allDirections, new CustomAdapter.IUpdateAdapter<DirectionPreset>() {
-			@Override
-			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<DirectionPreset> list)
+		listViewAdapter = new CustomAdapter<>(this, allDirections, (i, view, viewGroup, inflater, list) ->
+		{
+			DirectionPreset item = list.get(i);
+			ConstraintLayout layout = (ConstraintLayout) inflater.inflate(R.layout.line_selection_item, null);
+			((TextView)layout.findViewById(R.id.line_id)).setText(item.line_id);
+			layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(item.line_color));
+			
+			int color = Helper.getTextContrast(item.line_color);
+			((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
+			
+			((TextView)layout.findViewById(R.id.direction_txt)).setText(item.direction);
+
+			CheckBox checkBox =  layout.findViewById(R.id.line_selected);
+
+			checkBox.setOnCheckedChangeListener((compoundButton, b) ->
 			{
-				DirectionPreset item = list.get(i);
-				ConstraintLayout layout = (ConstraintLayout) inflater.inflate(R.layout.line_selection_item, null);
-				((TextView)layout.findViewById(R.id.line_id)).setText(item.line_id);
-				layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(item.line_color));
-				
-				int color = Helper.getTextContrast(item.line_color);
-				((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
-				
-				((TextView)layout.findViewById(R.id.direction_txt)).setText(item.direction);
-
-				CheckBox checkBox = (CheckBox) layout.findViewById(R.id.line_selected);
-
-				checkBox.setOnCheckedChangeListener((compoundButton, b) ->
-				{
-					for (int j = 0; j < item.terminus.length; j++)
-					{
-						directionsSelected[i][j] = b;
-					}
-					runOnUiThread(() -> listViewAdapter.notifyDataSetChanged());
-				});
-				LinearLayout terminusList = layout.findViewById(R.id.terminus_list_view);
-				Boolean allChecked = true;
-
 				for (int j = 0; j < item.terminus.length; j++)
 				{
-					LinearLayout child = (LinearLayout) inflater.inflate(R.layout.terminus_item, null);
-					((TextView)child.findViewById(R.id.terminus_name)).setText(item.terminus[j]);
-					CheckBox terminusCheckBox = (CheckBox) child.findViewById(R.id.terminus_selected);
-//					if (directionsSelected[i][j] == null)
-//						directionsSelected[i][j] = false;
-
-					terminusCheckBox.setChecked(directionsSelected[i][j]);
-					if (!directionsSelected[i][j])
-						allChecked = false;
-
-					int finalJ = j;
-					terminusCheckBox.setOnCheckedChangeListener((compoundButton, b) ->
-					{
-						directionsSelected[i][finalJ] = b;
-					});
-
-					terminusList.addView(child);
+					directionsSelected[i][j] = b;
 				}
-				checkBox.setChecked(allChecked);
+				runOnUiThread(() -> listViewAdapter.notifyDataSetChanged());
+			});
+			LinearLayout terminusList = layout.findViewById(R.id.terminus_list_view);
+			boolean allChecked = true;
 
+			for (int j = 0; j < item.terminus.length; j++)
+			{
+				LinearLayout child = (LinearLayout) inflater.inflate(R.layout.terminus_item, null);
+				((TextView)child.findViewById(R.id.terminus_name)).setText(item.terminus[j]);
+				CheckBox terminusCheckBox =  child.findViewById(R.id.terminus_selected);
 
-				return layout;
+				terminusCheckBox.setChecked(directionsSelected[i][j]);
+				if (!directionsSelected[i][j])
+					allChecked = false;
+
+				int finalJ = j;
+				terminusCheckBox.setOnCheckedChangeListener((compoundButton, b) -> directionsSelected[i][finalJ] = b);
+
+				terminusList.addView(child);
 			}
+			checkBox.setChecked(allChecked);
+
+
+			return layout;
 		});
 
 		listView.setAdapter(listViewAdapter);
@@ -133,12 +124,9 @@ public class LineSelectorActivity extends AppCompatActivity
 
 	private void SelectAll(boolean select)
 	{
-		for (int i = 0; i < directionsSelected.length; i++)
+		for (Boolean[] booleans : directionsSelected)
 		{
-			for (int j = 0; j < directionsSelected[i].length; j++)
-			{
-				directionsSelected[i][j] = select;
-			}
+			Arrays.fill(booleans, select);
 		}
 
 		listViewAdapter.notifyDataSetChanged();
@@ -163,13 +151,13 @@ public class LineSelectorActivity extends AppCompatActivity
 			if (terminus.size() != 0)
 			{
 				DirectionPreset curDirection = new DirectionPreset(itemDirection.line_id, itemDirection.direction,
-						terminus.toArray(new String[terminus.size()]), itemDirection.line_color);
+						terminus.toArray(new String[0]), itemDirection.line_color);
 				returnDirection.add(curDirection);
 			}
 		}
 
 
-		intent.putExtra("Directions", returnDirection.toArray(new DirectionPreset[returnDirection.size()]));
+		intent.putExtra("Directions", returnDirection.toArray(new DirectionPreset[0]));
 		setResult(RESULT_OK, intent);
 		finish();
 	}

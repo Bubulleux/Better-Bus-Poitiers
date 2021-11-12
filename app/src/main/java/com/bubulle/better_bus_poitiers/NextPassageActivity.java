@@ -2,7 +2,6 @@ package com.bubulle.better_bus_poitiers;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
@@ -20,15 +19,13 @@ public class NextPassageActivity extends AppCompatActivity {
 	private ListView nextPassageList;
 	private TextView emptyListTxt;
 	private ProgressBar progressBar;
-	private FrameLayout listFrameLayout;
-	private Button refreshBtn;
 	private Button seeAllBtn;
 	
 	private ActivityResultLauncher<Intent> changeStationResultLauncher;
 
 	private CustomAdapter<Passage> listAdapter;
 
-	private List<Passage> passages = new ArrayList<>();
+	private final List<Passage> passages = new ArrayList<>();
 
 	private ApiHelper apiHelper;
 	private Station station;
@@ -65,10 +62,8 @@ public class NextPassageActivity extends AppCompatActivity {
 		//Get View
 		stationTextView = findViewById(R.id.station_name);
 		nextPassageList = findViewById(R.id.next_passage_list);
-		refreshBtn = findViewById(R.id.refresh_btn);
 		emptyListTxt = findViewById(R.id.next_passage_list_empty_txt);
 		progressBar = findViewById(R.id.progressBar2);
-		listFrameLayout = findViewById(R.id.list_frame_layout);
 		
 		nextPassageList.setEmptyView(emptyListTxt);
 
@@ -76,10 +71,7 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		setLoading(false);
 		
-		findViewById(R.id.go_back_btn).setOnClickListener((View view) ->
-		{
-			finish();
-		});
+		findViewById(R.id.go_back_btn).setOnClickListener((View view) -> finish());
 		
 		if (preset == null)
 			removeSeeAllBtn();
@@ -94,15 +86,9 @@ public class NextPassageActivity extends AppCompatActivity {
 		}
 
 		//Assign Function
-		refreshBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view)
-			{
-				Refresh();
-			}
-		});
+		findViewById(R.id.refresh_btn).setOnClickListener(view -> Refresh());
 		
-		((Button) findViewById(R.id.fix_timetable_btn)).setOnClickListener((View view) ->
+		findViewById(R.id.fix_timetable_btn).setOnClickListener((View view) ->
 		{
 			Intent intent = new Intent(this, ActivityFixTimeTable.class);
 			intent.putExtra("Station", station);
@@ -169,19 +155,17 @@ public class NextPassageActivity extends AppCompatActivity {
 	private void InitClient()
 	{
 		lineIsLoad = false;
-		ApiHelper.CallbackToken callbackToken = (String token) ->
-		{
-			apiHelper.GetStationLine(station, object ->
-			{
-				lines = object;
-				
-				apiHelper.GetStationLineId(station, lines[0], object1 ->
+		ApiHelper.CallbackToken callbackToken = (token) ->
+				apiHelper.GetStationLine(station, object ->
 				{
-					lineIsLoad = true;
-					Refresh();
+					lines = object;
+					
+					apiHelper.GetStationLineId(station, lines[0], object1 ->
+					{
+						lineIsLoad = true;
+						Refresh();
+					});
 				});
-			});
-		};
 		
 		setLoading(true);
 		
@@ -239,30 +223,27 @@ public class NextPassageActivity extends AppCompatActivity {
 
 	public void InitAdapter()
 	{
-		listAdapter = new CustomAdapter<Passage>(this, passages, new CustomAdapter.IUpdateAdapter<Passage>() {
-			@Override
-			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<Passage> list)
-			{
-				Passage item = list.get(i);
-				RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.next_passage_item, null);
+		listAdapter = new CustomAdapter<>(this, passages, (i, view, viewGroup, inflater, list) ->
+		{
+			Passage item = list.get(i);
+			RelativeLayout layout = (RelativeLayout) inflater.inflate(R.layout.next_passage_item, null);
 
-				((TextView)layout.findViewById(R.id.direction_txt)).setText(item.destinationName);
-				((TextView)layout.findViewById(R.id.line_id)).setText(item.line.line_id);
-				((TextView)layout.findViewById(R.id.line_id)).setBackgroundColor(Color.parseColor(item.line.color));
-				
-				int color = Helper.getTextContrast(item.line.color);
-				((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
-				System.out.println(item.line.color);
+			((TextView)layout.findViewById(R.id.direction_txt)).setText(item.destinationName);
+			((TextView)layout.findViewById(R.id.line_id)).setText(item.line.line_id);
+			layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(item.line.color));
+			
+			int color = Helper.getTextContrast(item.line.color);
+			((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
+			System.out.println(item.line.color);
 
-				Date time = Helper.getDate(item.expectedDepartureTime);
-				//long diff = ChronoUnit.MINUTES.between(Calendar.getInstance().getTime(), time);
-				long diff = (time.getTime() - Calendar.getInstance().getTime().getTime()) / (1000 * 60);
+			Date time = Helper.getDate(item.expectedDepartureTime);
+			//long diff = ChronoUnit.MINUTES.between(Calendar.getInstance().getTime(), time);
+			long diff = (time.getTime() - Calendar.getInstance().getTime().getTime()) / (1000 * 60);
 
-				((TextView)layout.findViewById(R.id.time_txt)).setText(new SimpleDateFormat("HH : mm").format(time));
-				((TextView)layout.findViewById(R.id.time_relative_txt)).setText(diff + " min");
+			((TextView)layout.findViewById(R.id.time_txt)).setText(new SimpleDateFormat("HH : mm").format(time));
+			((TextView)layout.findViewById(R.id.time_relative_txt)).setText(diff + " min");
 
-				return layout;
-			}
+			return layout;
 		});
 
 		nextPassageList.setAdapter(listAdapter);

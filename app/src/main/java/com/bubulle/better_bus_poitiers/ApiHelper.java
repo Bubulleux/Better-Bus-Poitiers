@@ -1,7 +1,6 @@
 package com.bubulle.better_bus_poitiers;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -26,7 +25,7 @@ public class ApiHelper implements Serializable
 	private final OkHttpClient client = new OkHttpClient();
 	public static String token = null;
 	public static Station[] stations;
-	private Context context;
+	private final Context context;
 	
 	
 	public ApiHelper(Context context)
@@ -66,7 +65,6 @@ public class ApiHelper implements Serializable
 		boolean is_connected;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			Network nw = connectivityManager.getActiveNetwork();
-			if (nw == null) is_connected = false;
 			
 			NetworkCapabilities actNw = connectivityManager.getNetworkCapabilities(nw);
 			
@@ -204,7 +202,7 @@ public class ApiHelper implements Serializable
 
 	public void GetNextPassage(Station station, Line line, CallbackObject<NextPassages> callback)
 	{
-		if (station.id == "")
+		if (station.id.equals(""))
 		{
 			System.out.println("Error station id is undefined");
 		}
@@ -229,19 +227,6 @@ public class ApiHelper implements Serializable
 		});
 
 	}
-
-	public Station GetStationByName(String name)
-	{
-		for(Station station : stations)
-		{
-			if (station.name == name)
-			{
-				return station;
-			}
-		}
-		return null;
-	}
-
 
 	private Request GetRequest(HttpUrl url)
 	{

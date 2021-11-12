@@ -9,7 +9,7 @@ public class PresetItem implements Serializable
 	public DirectionPreset[] directions;
 	public boolean isFavorite;
 
-	public PresetItem(String  name, String stationName, DirectionPreset directions[], boolean isFavorite)
+	public PresetItem(String  name, String stationName, DirectionPreset[] directions, boolean isFavorite)
 	{
 		this.name = name;
 		this.stationName = stationName;

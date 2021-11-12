@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -25,11 +24,8 @@ public class MainActivity extends AppCompatActivity
 	
 	private ApiHelper apiHelper;
 	private final List<PresetItem> presets = new ArrayList<>();
-	private final String PRESET_FILE_NAME = "timetable_presets.json";
 	public LayoutInflater inflater;
 	
-	private boolean isLoading = false;
-	private ProgressBar progressBar;
 
 	private CustomAdapter<PresetItem> presetListAdapter;
 
@@ -48,7 +44,6 @@ public class MainActivity extends AppCompatActivity
 
 		inflater = LayoutInflater.from(this);
 		ListView presetListView = findViewById(R.id.preset_list);
-		progressBar = findViewById(R.id.progressBar);
 		
 		//Check Widget Redirection
 		checkRedirection(getIntent());
@@ -126,63 +121,61 @@ public class MainActivity extends AppCompatActivity
 		});
 
 		//Initialize Preset List
-		presetListAdapter = new CustomAdapter<PresetItem>(this, presets, new CustomAdapter.IUpdateAdapter<PresetItem>() {
-			@Override
-			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<PresetItem> list) {
-
-				view = inflater.inflate(R.layout.preset_item, null);
-				PresetItem item = list.get(i);
-
-				view.setOnLongClickListener((View viewBtn) ->
+		presetListAdapter = new CustomAdapter<>(this, presets, (i, view, viewGroup, inflater, list) ->
+		{
+			
+			view = inflater.inflate(R.layout.preset_item, null);
+			PresetItem item = list.get(i);
+			
+			view.setOnLongClickListener((View viewBtn) ->
+			{
+				UpdatePreset(i);
+				return true;
+			});
+			
+			view.setOnClickListener((View viewBtn) -> GoToTimetable(item));
+			
+			((TextView) view.findViewById(R.id.name_txt)).setText(item.name);
+			
+			if (item.isFavorite)
+				((TextView) view.findViewById(R.id.name_txt)).setTypeface(null, Typeface.BOLD);
+			
+			((TextView) view.findViewById(R.id.station_text)).setText(item.stationName);
+			
+			GridLayout lineGrid =  view.findViewById(R.id.line_list);
+			
+			//Add line
+			List<String> lineAlreadyAdded = new ArrayList<>();
+			
+			for (DirectionPreset direction : item.directions)
+			{
+				boolean contain = false;
+				for (String line : lineAlreadyAdded)
 				{
-					UpdatePreset(i);
-					return true;
-				});
-
-				view.setOnClickListener((View viewBtn) -> GoToTimetable(item));
-
-				((TextView)view.findViewById(R.id.name_txt)).setText(item.name);
-
-				if (item.isFavorite)
-					((TextView)view.findViewById(R.id.name_txt)).setTypeface(null, Typeface.BOLD);
-
-				((TextView)view.findViewById(R.id.station_text)).setText(item.stationName);
-
-				GridLayout lineGrid = ((GridLayout)view.findViewById(R.id.line_list));
-
-				//Add line
-				List<String> lineAlreadyAdded = new ArrayList<>();
-
-				for (DirectionPreset direction : item.directions)
-				{
-					boolean contain = false;
-					for (String line: lineAlreadyAdded)
+					if (line.equals(direction.line_id))
 					{
-						if (line.equals(direction.line_id))
-						{
-							contain = true;
-							break;
-						}
+						contain = true;
+						break;
 					}
-
-					if (contain)
-						continue;
-
-					LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
-					TextView textView = layout.findViewById(R.id.line_id);
-
-					textView.setText(direction.line_id);
-					textView.setBackgroundColor(Color.parseColor(direction.line_color));
-					
-					int color = Helper.getTextContrast(direction.line_color);
-					textView.setTextColor(color);
-
-					lineAlreadyAdded.add(direction.line_id);
-					lineGrid.addView(layout);
 				}
-
-				return view;
+				
+				if (contain)
+					continue;
+				
+				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
+				TextView textView = layout.findViewById(R.id.line_id);
+				
+				textView.setText(direction.line_id);
+				textView.setBackgroundColor(Color.parseColor(direction.line_color));
+				
+				int color = Helper.getTextContrast(direction.line_color);
+				textView.setTextColor(color);
+				
+				lineAlreadyAdded.add(direction.line_id);
+				lineGrid.addView(layout);
 			}
+			
+			return view;
 		});
 		
 
@@ -212,12 +205,6 @@ public class MainActivity extends AppCompatActivity
 	{
 		is_running = false;
 		super.onStop();
-	}
-	
-	private void setLoading(boolean value)
-	{
-		isLoading = value;
-		progressBar.setVisibility(value ? View.VISIBLE : View.INVISIBLE);
 	}
 	
 	private void UpdateWidgets()
@@ -319,7 +306,7 @@ public class MainActivity extends AppCompatActivity
 								System.out.printf("%s %s\n", nextPassages.destinationName, nextPassages.expectedDepartureTime);
 							}
 
-							ListView presetListView = (ListView) findViewById(R.id.preset_list);
+							ListView presetListView = findViewById(R.id.preset_list);
 							System.out.println(presetListView);
 						});
 					});

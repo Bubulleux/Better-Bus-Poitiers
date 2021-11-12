@@ -20,9 +20,9 @@ public class FavoritePresetService extends RemoteViewsService
 	}
 
 	class FavoritePresetWidgetFactory implements RemoteViewsFactory {
-		private Context context;
-		private int appWidgetId;
-		private List<PresetItem> list = new ArrayList<>();
+		private final Context context;
+		private final int appWidgetId;
+		private final List<PresetItem> list = new ArrayList<>();
 		
 		FavoritePresetWidgetFactory(Context context, Intent intent) {
 			this.context = context;
@@ -70,7 +70,7 @@ public class FavoritePresetService extends RemoteViewsService
 			views.setTextViewText(R.id.preset_name, list.get(position).name);
 			
 			Intent fillIntent = new Intent();
-			fillIntent.putExtra("StartNextPassage", (PresetItem) list.get(position));
+			fillIntent.putExtra("StartNextPassage", list.get(position));
 			views.setOnClickFillInIntent(R.id.preset_name, fillIntent);
 			return views;
 		}

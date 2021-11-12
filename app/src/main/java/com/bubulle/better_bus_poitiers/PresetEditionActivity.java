@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,7 +20,6 @@ public class PresetEditionActivity extends AppCompatActivity
 	private EditText nameInput;
 	private TextView stationName;
 	private Button changeStationBtn;
-	private GridView lineListView;
 	private Button changeLineListBtn;
 	private CheckBox favoriteCheckBox;
 	private TextView positionOutput;
@@ -33,7 +30,7 @@ public class PresetEditionActivity extends AppCompatActivity
 	private Button deleteBtn;
 
 	private CustomAdapter<Line> gridViewLineAdapter;
-	private List<Line> lineInGridView = new ArrayList<>();
+	private final List<Line> lineInGridView = new ArrayList<>();
 
 	private PresetItem preset;
 	private ApiHelper apiHelper;
@@ -61,7 +58,6 @@ public class PresetEditionActivity extends AppCompatActivity
 		stationName = findViewById(R.id.station_name);
 		changeStationBtn = findViewById(R.id.change_station_btn);
 
-		lineListView = findViewById(R.id.grid_view_line);
 		changeLineListBtn = findViewById(R.id.change_line_btn);
 
 		favoriteCheckBox = findViewById(R.id.favorite_check_box);
@@ -92,21 +88,18 @@ public class PresetEditionActivity extends AppCompatActivity
 		InitBtn();
 		
 		//Init Grid Line Adapter
-		gridViewLineAdapter = new CustomAdapter<>(this, lineInGridView, new CustomAdapter.IUpdateAdapter<Line>() {
-			@Override
-			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<Line> list)
-			{
-				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
-				((TextView)layout.findViewById(R.id.line_id)).setText(list.get(i).line_id);
-				layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(list.get(i).color));
-				
-				int color = Helper.getTextContrast(list.get(i).color);
-				((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
+		gridViewLineAdapter = new CustomAdapter<>(this, lineInGridView, (i, view, viewGroup, inflater, list) ->
+		{
+			LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.line_item, null);
+			((TextView)layout.findViewById(R.id.line_id)).setText(list.get(i).line_id);
+			layout.findViewById(R.id.line_id).setBackgroundColor(Color.parseColor(list.get(i).color));
+			
+			int color = Helper.getTextContrast(list.get(i).color);
+			((TextView)layout.findViewById(R.id.line_id)).setTextColor(color);
 
-				return layout;
-			}
+			return layout;
 		});
-		lineListView.setAdapter(gridViewLineAdapter);
+		((GridView)findViewById(R.id.grid_view_line)).setAdapter(gridViewLineAdapter);
 
 		if (preset != null && !preset.stationName.equals(""))
 			RefreshLine(preset.stationName);
@@ -225,7 +218,7 @@ public class PresetEditionActivity extends AppCompatActivity
 						preset.stationName = station.name;
 						preset.directions = new DirectionPreset[0];
 						RefreshLine(station.name);
-						runOnUiThread(() -> RefreshInfo());
+						runOnUiThread(this::RefreshInfo);
 					}
 				});
 
@@ -246,7 +239,7 @@ public class PresetEditionActivity extends AppCompatActivity
 							}
 						}
 						System.out.println(out);
-						runOnUiThread(() -> RefreshInfo());
+						runOnUiThread(this::RefreshInfo);
 					}
 				});
 	}
@@ -272,10 +265,7 @@ public class PresetEditionActivity extends AppCompatActivity
 	public void RefreshLine(String stationName)
 	{
 		stationLine = null;
-		apiHelper.GetStationLine(stationName, object ->
-		{
-			stationLine = object;
-		});
+		apiHelper.GetStationLine(stationName, object -> stationLine = object);
 	}
 
 	public void RefreshGridViewLine()
@@ -289,7 +279,7 @@ public class PresetEditionActivity extends AppCompatActivity
 			boolean contain = false;
 			for (Line line : lineInGridView)
 			{
-				if (line.line_id == curDirection.line_id)
+				if (line.line_id.equals(curDirection.line_id))
 				{
 					contain = true;
 					break;

@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,7 +29,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	private TextView stationNameView;
 	
 	private Station station;
-	private List<Line> lines = new ArrayList<>();
+	private final List<Line> lines = new ArrayList<>();
 	private Line curLine;
 	private StationLineInfo lineInfo;
 	int direction;
@@ -37,7 +38,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 	private Calendar dateSearch;
 	
 	private CustomAdapter<FixPassage> listAdapter;
-	private List<FixPassage> fixPassagesList = new ArrayList<>();
+	private final List<FixPassage> fixPassagesList = new ArrayList<>();
 	
 	private ArrayAdapter<Line> lineArrayAdapter;
 	
@@ -62,7 +63,6 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		
 		//Get Intent Data
 		station = (Station) getIntent().getSerializableExtra("Station");
-		apiHelper.token = getIntent().getStringExtra("Token");
 		
 		//Get Views
 		dateInput = findViewById(R.id.date_input);
@@ -81,7 +81,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		
 		RefreshDate();
 		
-		if (apiHelper.token == null)
+		if (ApiHelper.token == null)
 			apiHelper.GetToken((String token) -> GetLines());
 		else
 			GetLines();
@@ -119,7 +119,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 							TextUtils.join(" | ", Arrays.copyOfRange(curLine.direction.retour, 0, lineInfo.boarding_ids.retour.length)),
 							TextUtils.join(" | ", Arrays.copyOfRange(curLine.direction.aller, 0, lineInfo.boarding_ids.aller.length))};
 					
-					ArrayAdapter<String> destinationAdapter = new ArrayAdapter<String>(parent.getContext(), R.layout.support_simple_spinner_dropdown_item, directionString);
+					ArrayAdapter<String> destinationAdapter = new ArrayAdapter<>(parent.getContext(), R.layout.support_simple_spinner_dropdown_item, directionString);
 					destinationAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 					runOnUiThread(() -> destinationInput.setAdapter(destinationAdapter));
 				});
@@ -141,7 +141,7 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			}
 			
 			@Override
-			public View getDropDownView(int position, View covertView, ViewGroup parent)
+			public View getDropDownView(int position, View covertView, @NotNull ViewGroup parent)
 			{
 				TextView TextView = (TextView) super.getDropDownView(position, covertView, parent);
 				if (position == 0)
@@ -181,27 +181,23 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			}
 		});
 		
-		listAdapter = new CustomAdapter<FixPassage>(this, fixPassagesList, new CustomAdapter.IUpdateAdapter<FixPassage>()
+		listAdapter = new CustomAdapter<>(this, fixPassagesList, (i, view, viewGroup, inflater, list) ->
 		{
-			@Override
-			public View getView(int i, View view, ViewGroup viewGroup, LayoutInflater inflater, List<FixPassage> list)
+			if (list.size() == 0)
+				return view;
+			FixPassage item = list.get(i);
+			LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fixe_timetable_item, null);
+			((TextView) layout.findViewById(R.id.txt_hour)).setText(String.format("%02d", item.hour));
+			
+			for (int j = 0; j < item.minutes.length; j++)
 			{
-				if (list.size() == 0)
-					return view;
-				FixPassage item = list.get(i);
-				LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.fixe_timetable_item, null);
-				((TextView) layout.findViewById(R.id.txt_hour)).setText(String.format("%02d", item.hour));
-				
-				for (int j = 0; j < item.minutes.length; j++)
-				{
-					LinearLayout linearLayoutMinute = (LinearLayout) inflater.inflate(R.layout.minute_item_fixe_timetable, null);
-					((TextView)linearLayoutMinute.findViewById(R.id.minute_txt)).setText(String.format("%02d", item.minutes[j]));
-					((TextView)linearLayoutMinute.findViewById(R.id.label_txt)).setText(String.format("%c", item.labels[j]));
-					layout.addView(linearLayoutMinute);
-				}
-				
-				return layout;
+				LinearLayout linearLayoutMinute = (LinearLayout) inflater.inflate(R.layout.minute_item_fixe_timetable, null);
+				((TextView)linearLayoutMinute.findViewById(R.id.minute_txt)).setText(String.format("%02d", item.minutes[j]));
+				((TextView)linearLayoutMinute.findViewById(R.id.label_txt)).setText(String.format("%c", item.labels[j]));
+				layout.addView(linearLayoutMinute);
 			}
+			
+			return layout;
 		});
 		timeTableList.setAdapter(listAdapter);
 		
@@ -210,7 +206,6 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		findViewById(R.id.next_passage_btn).setOnClickListener((View view) ->
 		{
 			Intent intent = new Intent(this, NextPassageActivity.class);
-			intent.putExtra("Token", apiHelper.token);
 			intent.putExtra("Station", station);
 			
 			startActivity(intent);
@@ -252,8 +247,6 @@ public class ActivityFixTimeTable extends AppCompatActivity
 			lines.clear();
 			lines.add(new Line());
 			lines.addAll(Arrays.asList(linesCallBack));
-//			ArrayAdapter<Line> lineArrayAdapter = new ArrayAdapter<Line>(this, R.layout.support_simple_spinner_dropdown_item, lines);
-//			lineArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
 			fixPassagesList.clear();
 			runOnUiThread(() ->
 			{
@@ -302,61 +295,57 @@ public class ActivityFixTimeTable extends AppCompatActivity
 		}
 		
 		apiHelper.GetTimeTable(lineInfo.stop_id, curLine, terminusArrayInt,
-				direction, dateSearch, new ApiHelper.CallbackObject<TimeTable>()
+				direction, dateSearch, object ->
 				{
-					@Override
-					public void onResponse(TimeTable object)
+					setLoading(false);
+					fixPassagesList.clear();
+					int hour =  -1;
+					List<Integer> minutes = new ArrayList<>();
+					List<Character> labels = new ArrayList<>();
+					Calendar scheduleDate = Calendar.getInstance();
+					
+					SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+					for (Schedule schedule : object.horaire)
 					{
-						setLoading(false);
-						fixPassagesList.clear();
-						int hour =  -1;
-						List<Integer> minutes = new ArrayList<>();
-						List<Character> labels = new ArrayList<>();
-						Calendar scheduleDate = Calendar.getInstance();
-						
-						SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-						for (Schedule schedule : object.horaire)
+						try
 						{
-							try
-							{
-								scheduleDate.setTime(sdf.parse(schedule.time));
-							} catch (ParseException e)
-							{
-								e.printStackTrace();
-							}
+							scheduleDate.setTime(sdf.parse(schedule.time));
+						} catch (ParseException e)
+						{
+							e.printStackTrace();
+						}
+						
+						if (hour != scheduleDate.get(Calendar.HOUR_OF_DAY))
+						{
+							if (hour != -1)
+								fixPassagesList.add(new FixPassage(hour, minutes, labels));
 							
-							if (hour != scheduleDate.get(Calendar.HOUR_OF_DAY))
-							{
-								if (hour != -1)
-									fixPassagesList.add(new FixPassage(hour, minutes, labels));
-								
-								hour = scheduleDate.get(Calendar.HOUR_OF_DAY);
-								minutes.clear();
-								labels.clear();
-							}
-							minutes.add(scheduleDate.get(Calendar.MINUTE));
-							labels.add(schedule.label.charAt(0));
+							hour = scheduleDate.get(Calendar.HOUR_OF_DAY);
+							minutes.clear();
+							labels.clear();
 						}
-						if (hour != -1)
-							fixPassagesList.add(new FixPassage(hour, minutes, labels));
-						
-						listAdapter.list = fixPassagesList;
-						runOnUiThread(() -> listAdapter.notifyDataSetChanged());
-						
-						StringBuilder labelStringBuilder = new StringBuilder();
-						for (Terminus label : object.terminus)
-						{
-							if (!labelStringBuilder.toString().equals(""))
-								labelStringBuilder.append("\n");
-							labelStringBuilder.append(String.format("%s: %s", label.label, label.direction));
-						}
-						runOnUiThread(() -> labelTextView.setText(labelStringBuilder.toString()));
-						
+						minutes.add(scheduleDate.get(Calendar.MINUTE));
+						labels.add(schedule.label.charAt(0));
 					}
+					if (hour != -1)
+						fixPassagesList.add(new FixPassage(hour, minutes, labels));
+					
+					listAdapter.list = fixPassagesList;
+					runOnUiThread(() -> listAdapter.notifyDataSetChanged());
+					
+					StringBuilder labelStringBuilder = new StringBuilder();
+					for (Terminus label : object.terminus)
+					{
+						if (!labelStringBuilder.toString().equals(""))
+							labelStringBuilder.append("\n");
+						labelStringBuilder.append(String.format("%s: %s", label.label, label.direction));
+					}
+					runOnUiThread(() -> labelTextView.setText(labelStringBuilder.toString()));
+					
 				});
 	}
 	
-	public class FixPassage
+	public static class FixPassage
 	{
 		int hour;
 		int[] minutes;

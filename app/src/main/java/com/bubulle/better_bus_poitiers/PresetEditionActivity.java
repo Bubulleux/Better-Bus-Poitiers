@@ -216,6 +216,8 @@ public class PresetEditionActivity extends AppCompatActivity
 					{
 						Station station = (Station) result.getData().getExtras().get("Station");
 						preset.stationName = station.name;
+						preset.stationLatitude = station.lat;
+						preset.stationLongitude = station.lng;
 						preset.directions = new DirectionPreset[0];
 						RefreshLine(station.name);
 						runOnUiThread(this::RefreshInfo);

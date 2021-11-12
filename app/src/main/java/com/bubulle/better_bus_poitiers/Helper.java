@@ -91,7 +91,8 @@ public class Helper
 		
 		 alertDialogView.findViewById(R.id.see_in_map_btn).setOnClickListener((View view) ->
 		{
-			Uri uri = Uri.parse(String.format(Locale.US, "https://www.google.fr/maps/dir//%f,%f/", station.lat, station.lng));
+			Uri uri = Uri.parse(String.format(Locale.US, "https://www.google.fr/maps/place/%f,%f/", station.lat, station.lng));
+			System.out.println(uri.toString());
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
 			context.startActivity(browserIntent);
 			

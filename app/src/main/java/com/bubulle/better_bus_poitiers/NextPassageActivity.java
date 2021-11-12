@@ -57,6 +57,8 @@ public class NextPassageActivity extends AppCompatActivity {
 			preset = (PresetItem) getIntent().getSerializableExtra("TimetablePreset");
 			station = new Station();
 			station.name = preset.stationName;
+			station.lat = preset.stationLatitude;
+			station.lng = preset.stationLongitude;
 		}
 
 		//Get View

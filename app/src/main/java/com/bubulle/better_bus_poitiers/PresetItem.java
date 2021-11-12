@@ -6,6 +6,8 @@ public class PresetItem implements Serializable
 {
 	public String name;
 	public String stationName;
+	public float stationLatitude;
+	public float stationLongitude;
 	public DirectionPreset[] directions;
 	public boolean isFavorite;
 

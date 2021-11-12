@@ -49,6 +49,9 @@ public class MainActivity extends AppCompatActivity
 		inflater = LayoutInflater.from(this);
 		ListView presetListView = findViewById(R.id.preset_list);
 		progressBar = findViewById(R.id.progressBar);
+		
+		//Check Widget Redirection
+		checkRedirection(getIntent());
 
 		//Get Api token
 		apiHelper.GetToken(null);
@@ -184,49 +187,24 @@ public class MainActivity extends AppCompatActivity
 		
 
 		presetListView.setAdapter(presetListAdapter);
-		
     }
 	
-	@Override
-	public void onStart()
-	{
-		super.onStart();
-		System.out.println("Start");
-	}
+	
 	
 	@Override
-	protected void onResume()
+	protected void onNewIntent(Intent intent)
 	{
-		super.onResume();
-		System.out.println("On Resume");
+		super.onNewIntent(intent);
+		checkRedirection(intent);
 	}
 	
-	@Override
-	protected void onRestart()
-	{
-		super.onRestart();
-		System.out.println("On Restart");
-		checkRedirection();
-	}
-	
-	@Override
-	public void onAttachedToWindow()
-	{
-		super.onAttachedToWindow();
-		System.out.println("On Atacher to windo");
-	}
-	
-	
-	private void checkRedirection()
+	private void checkRedirection(Intent intent)
 	{
 		//Get Auto Load next Passage
-		PresetItem presetStart = (PresetItem) getIntent().getSerializableExtra("StartNextPassage");
+		PresetItem presetStart = (PresetItem) intent.getSerializableExtra("StartNextPassage");
 		
-		System.out.println(presetStart);
 		if (presetStart != null)
-		{
 			GoToTimetable(presetStart);
-		}
 	}
 	
 	@Override
@@ -271,8 +249,6 @@ public class MainActivity extends AppCompatActivity
 		
 		presets.clear();
 		presets.addAll(Arrays.asList(dataPresets));
-
-		Toast.makeText(this, getString(R.string.preset_loaded), Toast.LENGTH_SHORT).show();
 	}
 
 	public void otherTimetable()

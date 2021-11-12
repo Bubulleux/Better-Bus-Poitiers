@@ -42,12 +42,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 		is_running = true;
 		
-		Helper.getTextContrast(Color.parseColor("#FFFFFF"));
-		Helper.getTextContrast(Color.parseColor("#000000"));
-		Helper.getTextContrast(Color.parseColor("#AACCEE"));
-		Helper.getTextContrast(Color.parseColor("#ABCDEF"));
-		Helper.getTextContrast(Color.parseColor("#123456"));
-		
         setContentView(R.layout.activity_main);
 		apiHelper = new ApiHelper(this);
 		LoadPresets();
@@ -191,13 +185,49 @@ public class MainActivity extends AppCompatActivity
 
 		presetListView.setAdapter(presetListAdapter);
 		
+    }
+	
+	@Override
+	public void onStart()
+	{
+		super.onStart();
+		System.out.println("Start");
+	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		System.out.println("On Resume");
+	}
+	
+	@Override
+	protected void onRestart()
+	{
+		super.onRestart();
+		System.out.println("On Restart");
+		checkRedirection();
+	}
+	
+	@Override
+	public void onAttachedToWindow()
+	{
+		super.onAttachedToWindow();
+		System.out.println("On Atacher to windo");
+	}
+	
+	
+	private void checkRedirection()
+	{
 		//Get Auto Load next Passage
 		PresetItem presetStart = (PresetItem) getIntent().getSerializableExtra("StartNextPassage");
+		
+		System.out.println(presetStart);
 		if (presetStart != null)
 		{
 			GoToTimetable(presetStart);
 		}
-    }
+	}
 	
 	@Override
 	public void onStop()
@@ -247,6 +277,9 @@ public class MainActivity extends AppCompatActivity
 
 	public void otherTimetable()
 	{
+		if (!ApiHelper.CheckConnection(this))
+			return;
+		
 		Intent intent = new Intent(this, ActivityFindStation.class);
 		String[] stationsHistoryArray = Helper.loadPrefJson("station_history", String[].class, this);
 		if (stationsHistoryArray != null)
@@ -254,33 +287,25 @@ public class MainActivity extends AppCompatActivity
 			intent.putExtra("History", stationsHistoryArray);
 			System.out.println(stationsHistoryArray.length);
 		}
-		intent.putExtra("Token", apiHelper.token);;
 		activityResultLauncher.launch(intent);
 	}
 
 	public void GoToTimetable(PresetItem timetablePreset)
 	{
+		if (!ApiHelper.CheckConnection(this))
+			return;
+		
 		Intent intent = new Intent(this, NextPassageActivity.class);
-		intent.putExtra("Token", apiHelper.token);
 		intent.putExtra("TimetablePreset", timetablePreset);
 		startActivity(intent);
 	}
 	
-	
-	
-	private void GetStationNextPassage(Station station)
-	{
-		System.out.printf("Station Chose: %s\n", station.name);
-		Intent intent = new Intent(this, NextPassageActivity.class);
-		intent.putExtra("Token", apiHelper.token);
-		intent.putExtra("Station", station);
-		startActivity(intent);
-	}
-	
-	
 
 	public void UpdatePreset(int i)
 	{
+		if (!ApiHelper.CheckConnection(this))
+			return;
+		
 		Intent intent = new Intent(this, PresetEditionActivity.class);
 		intent.putExtra("Index", i);
 		intent.putExtra("Preset", presets.get(i));

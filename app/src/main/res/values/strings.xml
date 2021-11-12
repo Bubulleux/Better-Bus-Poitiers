@@ -51,5 +51,6 @@
 	<string name="no_passage">Aucun passage n\'est prévu ce jour là</string>
 	<string name="preset_list_empty">La liste des pré-réglages est vide.\n(Créez en un pour le voir apparaître ici)</string>
 	<string name="timetable_list_empty">Aucun passage n\'est prévu ce jour là</string>
-	
+	<string name="retry">Réessayez</string>
+
 </resources>

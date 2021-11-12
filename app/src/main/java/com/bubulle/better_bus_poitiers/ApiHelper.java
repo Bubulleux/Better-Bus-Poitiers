@@ -1,6 +1,7 @@
 package com.bubulle.better_bus_poitiers;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -59,7 +60,7 @@ public class ApiHelper implements Serializable
 		});
 	}
 	
-	public boolean CheckConnection(Context context)
+	public static boolean  CheckConnection(Context context)
 	{
 		ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		boolean is_connected;
@@ -82,7 +83,7 @@ public class ApiHelper implements Serializable
 		if (!is_connected) {
 			AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
 			alertBuilder.setMessage(R.string.connection_error);
-			alertBuilder.setPositiveButton("Ok", null);
+			alertBuilder.setNeutralButton(R.string.retry, (dialog, which) -> CheckConnection(context));
 			alertBuilder.create().show();
 		}
 		return  is_connected;

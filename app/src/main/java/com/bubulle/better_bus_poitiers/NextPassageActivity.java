@@ -38,7 +38,6 @@ public class NextPassageActivity extends AppCompatActivity {
 	private boolean isLoading;
 	
 	/* Intent Extra:
-		"Token": api Token (String)
 		"Station": (Station)
 		"TimetablePreset": (PresetItem)
 	 */
@@ -51,8 +50,6 @@ public class NextPassageActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_next_passage);
 		//Get Extra
 		apiHelper = new ApiHelper(this);
-		apiHelper.token =(String) getIntent().getSerializableExtra("Token");
-		
 		
 		
 		station = (Station) getIntent().getSerializableExtra("Station");
@@ -109,7 +106,6 @@ public class NextPassageActivity extends AppCompatActivity {
 		{
 			Intent intent = new Intent(this, ActivityFixTimeTable.class);
 			intent.putExtra("Station", station);
-			intent.putExtra("Token", apiHelper.token);
 			startActivity(intent);
 			finish();
 		});
@@ -131,7 +127,6 @@ public class NextPassageActivity extends AppCompatActivity {
 			if (isLoading)
 				return;
 			Intent intent = new Intent(this, ActivityFindStation.class);
-			intent.putExtra("Token", apiHelper.token);
 			changeStationResultLauncher.launch(intent);
 		});
 		
@@ -152,6 +147,8 @@ public class NextPassageActivity extends AppCompatActivity {
 		InitAdapter();
 		InitClient();
 	}
+	
+	
 	
 	private void removeSeeAllBtn()
 	{
@@ -188,12 +185,10 @@ public class NextPassageActivity extends AppCompatActivity {
 		
 		setLoading(true);
 		
-		if (apiHelper.token == null)
-		{
+		if (ApiHelper.token == null)
 			apiHelper.GetToken(callbackToken);
-		}
 		else
-			callbackToken.onResponse(apiHelper.token);
+			callbackToken.onResponse(ApiHelper.token);
 	}
 
 	public void Refresh()
